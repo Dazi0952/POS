@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import connectGlobalDB from './config/database';
 import { tenantMiddleware } from './middleware/tenantMiddleware';
+import { getTenantModel } from './utils/getModel';
+import UserSchema, { IUser } from './models/local/UserSchema';
 
 dotenv.config();
 const app = express();
@@ -26,6 +28,30 @@ app.get('/api/local/info', (req: Request, res: Response) => {
     connectedToDatabase: dbName,
     status: 'Active connection'
   });
+});
+
+app.post('/api/local/users', async (req: Request, res: Response) => {
+  try {
+    const dbConnection = req.tenantConnection;
+    if (!dbConnection) throw new Error('No tenant connection');
+
+    const User = getTenantModel<IUser>(dbConnection, 'User', UserSchema);
+
+    const newUser = await User.create(req.body);
+
+    res.status(201).json({
+      message: 'User created in tenant DB!',
+      user: newUser,
+      dbName: dbConnection.name
+    });
+
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: 'Unknown error' });
+    }
+  }
 });
 
 const PORT = process.env.PORT || 5000;
