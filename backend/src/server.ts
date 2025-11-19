@@ -5,6 +5,7 @@ import connectGlobalDB from './config/database';
 import { tenantMiddleware } from './middleware/tenantMiddleware';
 import { getTenantModel } from './utils/getModel';
 import UserSchema, { IUser } from './models/local/UserSchema';
+import { loginUser } from './controllers/authController';
 
 dotenv.config();
 const app = express();
@@ -53,6 +54,8 @@ app.post('/api/local/users', async (req: Request, res: Response) => {
     }
   }
 });
+
+app.post('/api/auth/login', tenantMiddleware, loginUser);
 
 const PORT = process.env.PORT || 5000;
 
