@@ -26,7 +26,7 @@ const seedTenants = async () => {
     }
 
     await mongoose.connection.close();
-    console.log('🔌 Connection closed.');
+    console.log('Connection closed.');
     process.exit(0);
 
   } catch (error) {
