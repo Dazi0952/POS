@@ -35,18 +35,24 @@ export const OrdersPage = () => {
     fetchOrders();
   }, []);
 
-  // Funkcja do zamykania zamówienia (Rozlicz) - IMPLEMENTACJA PÓŹNIEJ
-  const handleCloseOrder = (orderId: string) => {
-    alert(`Tu będzie logika zamykania zamówienia ${orderId} i zwalniania stolika.`);
-  };
+  const handleCloseOrder = async (orderId: string) => {
+    if (!window.confirm('Czy na pewno chcesz zamknąć ten rachunek? Tej operacji nie można cofnąć.')) {
+      return;
+    }
 
-  // Filtrowanie: Bieżące to wszystko co NIE jest 'closed'
+    try {
+      await api.post(`/orders/${orderId}/close`);
+      fetchOrders();
+    } catch (error) {
+      console.error('Błąd zamykania:', error);
+      alert('Nie udało się zamknąć zamówienia.');
+    }
+  };
   const currentOrders = orders.filter(o => o.status !== 'closed');
   const archivedOrders = orders.filter(o => o.status === 'closed');
 
   const displayedOrders = tabValue === 0 ? currentOrders : archivedOrders;
 
-  // Mapowanie statusów na kolory i polskie nazwy
   const getStatusChip = (status: string) => {
     const map: Record<string, any> = {
       'kitchen': { label: 'W Kuchni', color: 'warning' },
