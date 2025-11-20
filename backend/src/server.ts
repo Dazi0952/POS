@@ -7,6 +7,7 @@ import { getTenantModel } from './utils/getModel';
 import UserSchema, { IUser } from './models/local/UserSchema';
 import { loginUser } from './controllers/authController';
 import menuRoutes from './routes/menuRoutes';
+import orderRoutes from './routes/orderRoutes';
 
 dotenv.config();
 const app = express();
@@ -58,6 +59,7 @@ app.post('/api/local/users', async (req: Request, res: Response) => {
 
 app.post('/api/auth/login', tenantMiddleware, loginUser);
 app.use('/api/menu', tenantMiddleware, menuRoutes); 
+app.use('/api/orders', tenantMiddleware, orderRoutes);
 
 
 const PORT = process.env.PORT || 5000;
