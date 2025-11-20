@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { getTenantModel } from '../utils/getModel';
 import OrderSchema, { IOrder } from '../models/local/OrderSchema';
+import TableSchema, { ITable } from '../models/local/TableSchema';
 
 export const createOrder = async (req: Request, res: Response) => {
   try {
@@ -8,14 +9,26 @@ export const createOrder = async (req: Request, res: Response) => {
     if (!db) return res.status(500).json({ error: 'No DB connection' });
 
     const Order = getTenantModel<IOrder>(db, 'Order', OrderSchema);
+    const Table = getTenantModel<ITable>(db, 'Table', TableSchema);
 
-    const { items, totalAmount } = req.body;
+    const { items, totalAmount, tableNumber } = req.body; 
 
     const newOrder = await Order.create({
       items,
       totalAmount,
+      tableNumber, 
       status: 'kitchen'
     });
+
+    if (tableNumber) {
+      await Table.findOneAndUpdate(
+        { number: tableNumber },
+        { 
+          status: 'occupied', 
+          currentOrderId: newOrder._id
+        }
+      );
+    }
 
     res.status(201).json(newOrder);
   } catch (error) {

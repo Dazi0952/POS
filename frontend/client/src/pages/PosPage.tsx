@@ -4,6 +4,7 @@ import {
    Typography, Card, CardContent, CircularProgress, 
    List, ListItem, ListItemButton, ListItemText, Divider, Button, Box 
 } from '@mui/material';
+import { useLocation } from 'react-router-dom';
 
 import Grid from '@mui/material/Grid';
 
@@ -32,6 +33,8 @@ function PosPage() {
   const [menu, setMenu] = useState<MenuData | null>(null);
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState<CartItem[]>([]);
+  const location = useLocation();
+  const tableInfo = location.state as { tableId: string; tableNumber: string } | null;
 
   useEffect(() => {
     const fetchMenu = async () => {
@@ -72,12 +75,13 @@ function PosPage() {
           price: item.price,
           quantity: 1
         })),
-        totalAmount: total
+        totalAmount: total,
+        tableNumber: tableInfo?.tableNumber
       };
 
       await api.post('/orders', orderPayload);
 
-      alert('Zamówienie wysłane na kuchnię! 👨‍🍳');
+      alert(`Zamówienie dla stolika ${tableInfo ? tableInfo.tableNumber : 'Szybkie'} wysłane!`);
       setCart([]);
 
     } catch (error) {
@@ -134,7 +138,8 @@ function PosPage() {
       <Box sx={{ width: { xs: '300px', md: '400px' }, borderLeft: '1px solid #e0e0e0', bgcolor: 'white', display: 'flex', flexDirection: 'column', height: '100%', zIndex: 10, boxShadow: -5 }}>
           <Box p={3} bgcolor="#1a2027" color="white">
             <Typography variant="h5" fontWeight="bold">Zamówienie</Typography>
-            <Typography variant="body2" sx={{ opacity: 0.7 }}>Stolik #5</Typography>
+            <Typography variant="body2" sx={{ opacity: 0.7 }}>{tableInfo ? `Stolik #${tableInfo.tableNumber}` : 'Szybki Rachunek (Na Wynos)'}
+            </Typography>
           </Box>
           <Box sx={{ flexGrow: 1, overflowY: 'auto' }}>
             <List>

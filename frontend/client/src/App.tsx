@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { DashboardPage } from './pages/DashboardPage';
 import PosPage from './pages/PosPage';
-const HallPage = () => <h1>Tu będzie Sala</h1>;
-const OrdersPage = () => <h1>Tu będą Zamówienia</h1>;
+import { HallPage } from './pages/HallPage';
+import { OrdersPage } from './pages/OrdersPage';
 
 function App() {
   return (
