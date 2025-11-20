@@ -5,7 +5,6 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Button, CircularProgress 
 } from '@mui/material';
 
-// Proste typy
 interface Order {
   _id: string;
   tableNumber?: string;

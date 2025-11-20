@@ -5,15 +5,11 @@ import {
    List, ListItem, ListItemButton, ListItemText, Divider, Button, Box 
 } from '@mui/material';
 import { useLocation } from 'react-router-dom';
+import ProductModal from '../components/ProductModal';
+import type { Product, CartItemPayload } from '../components/ProductModal';
+
 
 import Grid from '@mui/material/Grid';
-
-interface Product {
-  _id: string;
-  name: string;
-  price: number;
-  categoryId: string;
-}
 
 interface Category {
   _id: string;
@@ -25,17 +21,30 @@ interface MenuData {
   products: Product[];
 }
 
-interface CartItem extends Product {
+interface CartItem {
+  _id: string;
   cartId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  details?: {       
+    variant?: string;
+    ingredients: any[];
+    comment: string;
+  };
 }
 
 function PosPage() {
   const [menu, setMenu] = useState<MenuData | null>(null);
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState<CartItem[]>([]);
+  
   const location = useLocation();
   const tableInfo = location.state as { tableId: string; tableNumber: string } | null;
-
+  
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
   useEffect(() => {
     const fetchMenu = async () => {
       try {
@@ -50,11 +59,30 @@ function PosPage() {
     fetchMenu();
   }, []);
 
-  const addToCart = (product: Product) => {
+  const handleProductClick = (product: Product) => {
+    setSelectedProduct(product);
+    setIsModalOpen(true);
+  };
+
+  const handleAddFromModal = (payload: CartItemPayload) => {
+    const { product, selectedVariant, selectedIngredients, comment, finalPrice } = payload;
+
+    let displayName = product.name;
+    if (selectedVariant) displayName += ` ${selectedVariant.name}`;
+    
     const newItem: CartItem = {
-      ...product,
-      cartId: Math.random().toString(36).substr(2, 9)
+      _id: product._id,
+      cartId: Math.random().toString(36).substr(2, 9),
+      name: displayName,
+      price: finalPrice,
+      quantity: 1,
+      details: {
+        variant: selectedVariant?.name,
+        ingredients: selectedIngredients,
+        comment: comment
+      }
     };
+
     setCart([...cart, newItem]);
   };
 
@@ -118,7 +146,7 @@ function PosPage() {
                         '&:hover': { transform: 'scale(1.02)', boxShadow: 6 },
                         bgcolor: 'white'
                       }}
-                      onClick={() => addToCart(product)}
+                      onClick={() => handleProductClick(product)}
                     >
                       <CardContent sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
                         <Typography variant="h6" fontWeight="bold" sx={{ lineHeight: 1.2, mb: 1 }}>
@@ -188,7 +216,12 @@ function PosPage() {
             </Button>
           </Box>
       </Box>
-
+              <ProductModal 
+                open={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+                product={selectedProduct} 
+                onAddToCart={handleAddFromModal} 
+                />
     </Box>
   );
 }

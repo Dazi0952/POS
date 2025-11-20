@@ -40,7 +40,7 @@ export const getMenu = async (req: Request, res: Response) => {
     const Product = getTenantModel<IProduct>(db, 'Product', ProductSchema);
 
     const categories = await Category.find({ isVisible: true });
-    const products = await Product.find({ isAvailable: true });
+    const products = await Product.find({});
 
     res.json({ categories, products });
   } catch (error) {

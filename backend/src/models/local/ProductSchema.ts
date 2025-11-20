@@ -1,19 +1,44 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export interface IProduct extends Document {
+interface Variant {
   name: string;
   price: number;
+}
+interface Ingredient {
+  name: string;
+  price: number;      
+  isDefault: boolean;
+}
+
+export interface IProduct extends Document {
+  name: string;
   categoryId: mongoose.Types.ObjectId;
-  modifierGroups: mongoose.Types.ObjectId[];
-  isAvailable: boolean;
+  description?: string;
+  hasVariants: boolean;
+  variants: Variant[];       
+  ingredients: Ingredient[]; 
+  price: number; 
 }
 
 const ProductSchema = new Schema({
   name: { type: String, required: true },
-  price: { type: Number, required: true },
   categoryId: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
-  modifierGroups: [{ type: Schema.Types.ObjectId, ref: 'ModifierGroup' }],
-  isAvailable: { type: Boolean, default: true }
+  description: { type: String },
+  
+  hasVariants: { type: Boolean, default: false },
+  
+  variants: [{
+    name: String,
+    price: Number
+  }],
+  
+  ingredients: [{
+    name: String,
+    price: { type: Number, default: 0 },
+    isDefault: { type: Boolean, default: false }
+  }],
+
+  price: { type: Number, default: 0 }
 });
 
 export default ProductSchema;
