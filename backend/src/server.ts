@@ -8,6 +8,7 @@ import UserSchema, { IUser } from './models/local/UserSchema';
 import { loginUser } from './controllers/authController';
 import menuRoutes from './routes/menuRoutes';
 import orderRoutes from './routes/orderRoutes';
+import tableRoutes from './routes/tableRoutes';
 
 dotenv.config();
 const app = express();
@@ -60,6 +61,7 @@ app.post('/api/local/users', async (req: Request, res: Response) => {
 app.post('/api/auth/login', tenantMiddleware, loginUser);
 app.use('/api/menu', tenantMiddleware, menuRoutes); 
 app.use('/api/orders', tenantMiddleware, orderRoutes);
+app.use('/api/tables', tenantMiddleware, tableRoutes);
 
 
 const PORT = process.env.PORT || 5000;
