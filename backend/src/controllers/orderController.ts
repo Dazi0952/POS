@@ -60,9 +60,8 @@ export const closeOrder = async (req: Request, res: Response) => {
     const Order = getTenantModel<IOrder>(db, 'Order', OrderSchema);
     const Table = getTenantModel<ITable>(db, 'Table', TableSchema);
 
-    const { id } = req.params; // ID zamówienia
+    const { id } = req.params;
 
-    // 1. Znajdź i zaktualizuj zamówienie (status -> closed)
     const order = await Order.findByIdAndUpdate(
       id,
       { status: 'closed' },
