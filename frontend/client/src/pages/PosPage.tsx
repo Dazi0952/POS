@@ -163,11 +163,9 @@ function PosPage() {
     setIsSettingsModalOpen(true);
   };
 
-  // --- TUTAJ BYŁ BRAKUJĄCY ELEMENT ---
   const handleSaveSettings = (settings: OrderSettings) => {
     setOrderSettings(settings);
   };
-  // -----------------------------------
 
   const handleCheckout = async () => {
     if (cart.length === 0) return;
@@ -280,7 +278,7 @@ function PosPage() {
           <Box sx={{ flex: 1, overflowY: 'auto', p: 1 }}>
             <List disablePadding>
               {cart.map((item) => (
-                <ListItem key={item.cartId} disablePadding sx={{ borderBottom: '1px dashed #eee', display: 'block', p: 2, '&:hover': { bgcolor: '#fafafa' } }}>
+                <ListItem key={item.cartId} disablePadding sx={{ color: 'black', borderBottom: '1px dashed #eee', display: 'block', p: 2, '&:hover': { bgcolor: '#fafafa' } }}>
                     <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={0.5}>
                         <Box>
                             <Typography variant="subtitle1" fontWeight="bold" sx={{ lineHeight: 1.2, fontSize: '1rem' }}>{item.name}</Typography>
@@ -296,6 +294,13 @@ function PosPage() {
                             {item.details.ingredients.filter(ing => ing.isBase && ing.quantity > 1).map((ing, idx) => (
                                 <Typography key={`extra-${idx}`} variant="caption" display="block" sx={{ color: '#2e7d32', fontWeight: 'bold' }}>+ Extra {ing.name}</Typography>
                             ))}
+                            {item.details.ingredients
+                              .filter(ing => ing.isBase && ing.quantity === 0)
+                              .map((ing, idx) => (
+                              <Typography key={`remove-${idx}`} variant="caption" display="block" sx={{ color: '#d32f2f', textDecoration: 'line-through', opacity: 0.8 }}>
+                                  - {ing.name}
+                              </Typography>
+                            ))}
                             {item.details.comment && (<Typography variant="caption" display="block" sx={{ color: '#ed6c02', fontStyle: 'italic', mt: 0.5 }}>Notatka: "{item.details.comment}"</Typography>)}
                         </Box>
                     )}
@@ -307,7 +312,7 @@ function PosPage() {
                             </IconButton>
                             <Box display="flex" alignItems="center" bgcolor="#f5f5f5" borderRadius={1}>
                                 <IconButton size="small" onClick={() => updateQuantity(item.cartId, -1)} disabled={item.quantity <= 1} sx={{ p: 0.5 }}><RemoveIcon fontSize="small" /></IconButton>
-                                <Typography sx={{ mx: 1.5, fontWeight: 'bold', minWidth: 15, textAlign: 'center', fontSize: '0.9rem' }}>{item.quantity}</Typography>
+                                <Typography sx={{ color: 'black', mx: 1.5, fontWeight: 'bold', minWidth: 15, textAlign: 'center', fontSize: '0.9rem' }}>{item.quantity}</Typography>
                                 <IconButton size="small" onClick={() => updateQuantity(item.cartId, 1)} sx={{ p: 0.5 }}><AddIcon fontSize="small" /></IconButton>
                             </Box>
                         </Box>

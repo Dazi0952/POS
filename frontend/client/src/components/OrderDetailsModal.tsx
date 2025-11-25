@@ -185,6 +185,13 @@ export default function OrderDetailsModal({ open, onClose, order }: Props) {
                                 </Typography>
                             ))}
 
+                            {/* USUNIĘTE (NOWE) */}
+                            {item.details.ingredients?.filter(ing => ing.isBase && ing.quantity === 0).map((ing, i) => (
+                                <Typography key={`del-${i}`} variant="body2" color="error.main" sx={{ textDecoration: 'line-through' }}>
+                                    - {ing.name}
+                                </Typography>
+                            ))}
+
                             {/* Komentarz */}
                             {item.details.comment && (
                                 <Typography variant="body2" sx={{ color: '#ed6c02', fontStyle: 'italic', mt: 0.5 }}>

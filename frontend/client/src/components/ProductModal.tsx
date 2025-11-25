@@ -206,17 +206,16 @@ export default function ProductModal({ open, onClose, product, onAddToCart, init
 
   const handleConfirm = () => {
     const selectedIngs = Object.entries(ingredientsMap)
-      .filter(([_, qty]) => qty > 0)
-      .map(([name, qty]) => {
-        const isBase = product.ingredients.some(i => i.name === name && i.isDefault);
-        
-        return {
-          name,
-          price: getIngredientPrice(name),
-          quantity: qty,
-          isBase: isBase
-        };
-      });
+      .filter(([name, qty]) => {
+        const isBase = isDefaultIngredient(name);
+        return qty > 0 || isBase;
+      })
+      .map(([name, qty]) => ({
+        name,
+        price: getIngredientPrice(name),
+        quantity: qty,
+        isBase: isDefaultIngredient(name)
+      }));
 
     onAddToCart({
       product,
