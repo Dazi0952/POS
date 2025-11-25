@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../api/axios';
+import { useNavigate } from 'react-router-dom';
 import { 
   Container, Typography, Box, Paper, Tabs, Tab, 
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Button, CircularProgress, Stack 
@@ -50,6 +51,7 @@ interface Order {
 }
 
 export const OrdersPage = () => {
+  const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [tabValue, setTabValue] = useState(0);
@@ -242,20 +244,31 @@ export const OrdersPage = () => {
 
                 {/* KOLUMNA 6: PRZYCISK */}
                 <TableCell align="right">
-                  {order.status !== 'closed' ? (
-                    <Button 
-                      variant="contained" 
-                      color="success"
-                      // STOP PROPAGATION - żeby nie otwierać szczegółów przy klikaniu w Rozlicz
-                      onClick={(e) => { e.stopPropagation(); openPayment(order); }} 
-                      sx={{ fontWeight: 'bold' }}
-                    >
-                      ROZLICZ
-                    </Button>
-                  ) : (
-                    <Button variant="outlined" disabled>ZAMKNIĘTE</Button>
-                  )}
-                </TableCell>
+  <Stack direction="row" spacing={1} justifyContent="flex-end">
+      
+      {/* PRZYCISK EDYCJI */}
+      {order.status !== 'closed' && (
+        <Button
+            variant="outlined"
+            size="small"
+            onClick={(e) => {
+                e.stopPropagation();
+                // Przenosimy do POS i przekazujemy całe zamówienie
+                navigate('/pos', { state: { editOrder: order } });
+            }}
+        >
+            EDYTUJ
+        </Button>
+      )}
+
+      {/* PRZYCISK ROZLICZ (bez zmian) */}
+      {order.status !== 'closed' && (
+        <Button variant="contained" color="success" size="small" onClick={(e) => { e.stopPropagation(); openPayment(order); }}>
+          ROZLICZ
+        </Button>
+      )}
+  </Stack>
+</TableCell>
               </TableRow>
             ))}
             

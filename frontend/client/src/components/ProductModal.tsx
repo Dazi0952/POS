@@ -6,7 +6,6 @@ import {
 } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
-
 // --- BAZA WIEDZY O CENACH ---
 // Index 0 = 32cm, Index 1 = 43cm, Index 2 = 50cm
 const PRICING_RULES = {
@@ -108,24 +107,54 @@ interface Props {
   onClose: () => void;
   product: Product | null;
   onAddToCart: (item: CartItemPayload) => void;
+  initialValues?: {
+    variantName?: string;
+    ingredients: { name: string; quantity: number }[];
+    comment: string;
+  };
 }
 
-export default function ProductModal({ open, onClose, product, onAddToCart }: Props) {
+export default function ProductModal({ open, onClose, product, onAddToCart, initialValues }: Props) {
   const [variantIndex, setVariantIndex] = useState(0);
   const [ingredientsMap, setIngredientsMap] = useState<Record<string, number>>({}); 
   const [comment, setComment] = useState('');
 
   useEffect(() => {
-    if (product) {
-      setVariantIndex(0);
+    if (product && open) {
+      // 1. Wariant
+      let initVarIdx = 0;
+      if (initialValues?.variantName && product.hasVariants) {
+        const idx = product.variants.findIndex(v => v.name === initialValues.variantName);
+        if (idx >= 0) initVarIdx = idx;
+      }
+      setVariantIndex(initVarIdx);
+
+      // 2. Składniki
       const initialMap: Record<string, number> = {};
+      
+      // Najpierw ładujemy domyślne z produktu
       product.ingredients.forEach(ing => {
         initialMap[ing.name] = ing.isDefault ? 1 : 0;
       });
+
+      // Jeśli EDYTUJEMY, nadpisujemy ilościami z koszyka
+      if (initialValues?.ingredients) {
+          // Resetujemy mapę do zera przed nałożeniem edycji? 
+          // Nie, bo initialValues zawierają WSZYSTKIE składniki (bazowe i dodatkowe) jakie miał item
+          // Więc najlepiej wyzerować mapę i wgrać to co w initialValues
+          Object.keys(initialMap).forEach(k => initialMap[k] = 0); // Reset
+          
+          initialValues.ingredients.forEach(ing => {
+              initialMap[ing.name] = ing.quantity;
+          });
+      }
+
       setIngredientsMap(initialMap);
-      setComment('');
+
+      // 3. Komentarz
+      setComment(initialValues?.comment || '');
     }
-  }, [product]);
+  }, [product, open, initialValues]);
 
   if (!product) return null;
 
