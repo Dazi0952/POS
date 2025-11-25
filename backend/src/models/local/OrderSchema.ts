@@ -45,6 +45,7 @@ const OrderSchema = new Schema({
   orderType: { type: String }, // 'dine-in', 'delivery', 'takeout'
   
   deliveryDetails: {
+      name: { type: String },
       address: { type: String },
       phone: { type: String },
       scheduledTime: { type: String }

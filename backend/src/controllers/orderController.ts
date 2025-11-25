@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { getTenantModel } from '../utils/getModel';
 import OrderSchema, { IOrder } from '../models/local/OrderSchema';
 import TableSchema, { ITable } from '../models/local/TableSchema';
+import CustomerSchema, { ICustomer } from '../models/local/CustomerSchema';
 
 export const createOrder = async (req: Request, res: Response) => {
   try {
@@ -10,9 +11,24 @@ export const createOrder = async (req: Request, res: Response) => {
 
     const Order = getTenantModel<IOrder>(db, 'Order', OrderSchema);
     const Table = getTenantModel<ITable>(db, 'Table', TableSchema);
+    const Customer = getTenantModel<ICustomer>(db, 'Customer', CustomerSchema)
 
     const { items, totalAmount, tableNumber, orderType, deliveryDetails } = req.body; 
 
+    if (deliveryDetails && deliveryDetails.phone) {
+        await Customer.findOneAndUpdate(
+            { phone: deliveryDetails.phone },
+            {
+                $set: {
+                    name: deliveryDetails.name, 
+                    lastAddress: deliveryDetails.address || undefined,
+                    lastOrderDate: new Date()
+                },
+                $inc: { totalOrders: 1 } 
+            },
+            { upsert: true, new: true } 
+        );
+    }
     const newOrder = await Order.create({
       items,
       totalAmount,

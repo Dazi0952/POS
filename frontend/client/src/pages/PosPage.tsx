@@ -188,6 +188,7 @@ function PosPage() {
         orderType: stateInfo?.tableNumber ? 'dine-in' : orderSettings?.type,
         orderComment: globalComment,
         deliveryDetails: orderSettings ? {
+            name: orderSettings.name,
             address: orderSettings.address,
             phone: orderSettings.phone,
             scheduledTime: orderSettings.timeType === 'delta' 

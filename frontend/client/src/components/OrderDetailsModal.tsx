@@ -10,7 +10,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import PhoneIcon from '@mui/icons-material/Phone';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import EventIcon from '@mui/icons-material/Event';
-
+import PersonIcon from '@mui/icons-material/Person';
 // Typy zgodne z tym co wysyła backend
 interface OrderItem {
   name: string;
@@ -28,6 +28,7 @@ export interface OrderDetails {
   tableNumber?: string;
   orderType?: string; // 'dine-in' | 'takeout' | 'delivery'
   deliveryDetails?: { 
+      name?: string;
       address?: string; 
       phone?: string; 
       scheduledTime?: string; 
@@ -139,6 +140,18 @@ export default function OrderDetailsModal({ open, onClose, order }: Props) {
                         </Box>
                         <Typography variant="body2">
                             {order.deliveryDetails.phone}
+                        </Typography>
+                    </Box>
+                )}
+                {/* Klient */}
+                {order.deliveryDetails?.name && (
+                    <Box>
+                        <Box display="flex" alignItems="center" gap={0.5} color="text.primary">
+                            <PersonIcon fontSize="small" /> {/* Pamiętaj o imporcie PersonIcon */}
+                            <Typography variant="caption" fontWeight="bold">KLIENT:</Typography>
+                        </Box>
+                        <Typography variant="body2" fontWeight="bold">
+                            {order.deliveryDetails.name}
                         </Typography>
                     </Box>
                 )}
