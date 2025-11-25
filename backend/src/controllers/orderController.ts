@@ -11,13 +11,15 @@ export const createOrder = async (req: Request, res: Response) => {
     const Order = getTenantModel<IOrder>(db, 'Order', OrderSchema);
     const Table = getTenantModel<ITable>(db, 'Table', TableSchema);
 
-    const { items, totalAmount, tableNumber } = req.body; 
+    const { items, totalAmount, tableNumber, orderType, deliveryDetails } = req.body; 
 
     const newOrder = await Order.create({
       items,
       totalAmount,
       tableNumber, 
-      status: 'kitchen'
+      status: 'kitchen',
+      orderType,
+      deliveryDetails
     });
 
     if (tableNumber) {

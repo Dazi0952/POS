@@ -15,21 +15,43 @@ export interface IOrder extends Document {
   createdAt: Date;
 }
 
+const DeliveryDetailsSchema = new Schema({
+  address: { type: String },
+  phone: { type: String },
+  scheduledTime: { type: String }
+}, { _id: false }); // _id: false, bo nie potrzebujemy osobnego ID dla adresu
+
 const OrderSchema = new Schema({
+  // Lista produktów
   items: [{
     productId: { type: Schema.Types.ObjectId, ref: 'Product' },
     name: { type: String, required: true },
     price: { type: Number, required: true },
-    quantity: { type: Number, default: 1 }
+    quantity: { type: Number, default: 1 },
+    // Detale produktu (rozmiar, składniki)
+    details: {
+        variant: String,
+        ingredients: [{ name: String, quantity: Number, isBase: Boolean }],
+        comment: String
+    }
   }],
+
   totalAmount: { type: Number, required: true },
-  status: { 
-    type: String, 
-    enum: ['open', 'kitchen', 'ready', 'closed'], 
-    default: 'open' 
-  },
+  status: { type: String, enum: ['kitchen', 'ready', 'closed'], default: 'kitchen' },
   tableNumber: { type: String },
+
+  // --- SEKCJA LOGISTYCZNA (Dostawa/Wynos) ---
+  // Musi być dokładnie tutaj, na pierwszym poziomie obiektu
+  orderType: { type: String }, // 'dine-in', 'delivery', 'takeout'
+  
+  deliveryDetails: {
+      address: { type: String },
+      phone: { type: String },
+      scheduledTime: { type: String }
+  },
+  // -------------------------------------------
+
   createdAt: { type: Date, default: Date.now }
-});
+}, { strict: false }); // <--- DODANO strict: false (To pozwoli zapisać wszystko, nawet jeśli schemat ma błąd)
 
 export default OrderSchema;
