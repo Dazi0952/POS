@@ -10,7 +10,7 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 export const DashboardPage = () => {
   const navigate = useNavigate();
 
-  const userRole = localStorage.getItem('pos_user_role') || '';
+  const userRole = localStorage.getItem('pos_user_role') || "";
   
   console.log("AKTUALNA ROLA UŻYTKOWNIKA:", userRole);
   const menuItems = [
@@ -34,13 +34,6 @@ export const DashboardPage = () => {
       icon: <ReceiptLongIcon sx={{ fontSize: 60 }} />, 
       path: '/orders', 
       color: '#ff9800' 
-    },
-    { 
-      title: 'MANAGER', 
-      subtitle: 'Rozliczenia i Raporty', 
-      icon: <AdminPanelSettingsIcon sx={{ fontSize: 50 }} />, 
-      path: '/manager', 
-      color: '#607d8b' 
     }
   ];
   if (['manager', 'admin'].includes(userRole)) {
@@ -56,8 +49,11 @@ export const DashboardPage = () => {
   const handleLogout = () => {
     localStorage.removeItem('pos_token');
     localStorage.removeItem('pos_user_name');
+    localStorage.removeItem('pos_user_id');   // Czyścimy ID
+    localStorage.removeItem('pos_user_role');
     navigate('/login');
   }
+  
 
   return (
     <Container maxWidth="lg" sx={{ mt: 8 }}>

@@ -64,6 +64,7 @@ export const PinPadPage = () => {
       localStorage.setItem('pos_token', res.data.token);
       localStorage.setItem('pos_user_name', res.data.name);
       localStorage.setItem('pos_user_id', selectedUser._id);
+      localStorage.setItem('pos_user_role', res.data.role); 
       
       navigate('/'); // Idź do Dashboardu
     } catch (error) {
