@@ -12,8 +12,9 @@ export const getEmployeeSettlements = async (req: Request, res: Response) => {
     const User = getTenantModel(db, 'User', UserSchema);
 
     // Zakres czasu: Dzisiaj
-    const startOfDay = new Date(); startOfDay.setHours(0,0,0,0);
-    const endOfDay = new Date(); endOfDay.setHours(23,59,59,999);
+    const now = new Date();
+    const startOfDay = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0));
+    const endOfDay = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59));
 
     // Agregacja danych
     const report = await Order.aggregate([
@@ -37,8 +38,11 @@ export const getEmployeeSettlements = async (req: Request, res: Response) => {
       }
     ]);
 
+    console.log("=== DEBUG RAPORTU ===");
+    console.log("Znalezione zamówienia (agregacja):", JSON.stringify(report, null, 2));
     // Pobierz dane pracowników (żeby wyświetlić nazwiska zamiast ID)
     const users = await User.find();
+    console.log("Znalezieni pracownicy:", JSON.stringify(users, null, 2));
     const userMap = users.reduce((acc, u) => ({ ...acc, [u._id.toString()]: u.name }), {} as any);
 
     // Przekształć dane w czytelną strukturę dla Frontendu

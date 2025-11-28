@@ -52,7 +52,8 @@ const OrderSchema = new Schema({
   },
   // -------------------------------------------
   createdBy: {type: Schema.Types.ObjectId, ref: 'User' },
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
+  paymentMethod: { type: String, enum: ['cash', 'card', 'unpaid'], default: 'unpaid' }
 }, { strict: false }); // <--- DODANO strict: false (To pozwoli zapisać wszystko, nawet jeśli schemat ma błąd)
 
 export default OrderSchema;

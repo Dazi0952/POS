@@ -80,10 +80,13 @@ export const closeOrder = async (req: Request, res: Response) => {
     const Table = getTenantModel<ITable>(db, 'Table', TableSchema);
 
     const { id } = req.params;
+    const { paymentMethod } = req.body;
 
     const order = await Order.findByIdAndUpdate(
       id,
-      { status: 'closed' },
+      { status: 'closed' ,
+        paymentMethod: paymentMethod || 'cash'
+      },
       { new: true }
     );
 

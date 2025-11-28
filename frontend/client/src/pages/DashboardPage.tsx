@@ -10,6 +10,9 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 export const DashboardPage = () => {
   const navigate = useNavigate();
 
+  const userRole = localStorage.getItem('pos_user_role') || '';
+  
+  console.log("AKTUALNA ROLA UŻYTKOWNIKA:", userRole);
   const menuItems = [
     { 
       title: 'DODAJ', 
@@ -40,6 +43,15 @@ export const DashboardPage = () => {
       color: '#607d8b' 
     }
   ];
+  if (['manager', 'admin'].includes(userRole)) {
+    menuItems.push({ 
+      title: 'MANAGER', 
+      subtitle: 'Rozliczenia i Raporty', 
+      icon: <AdminPanelSettingsIcon sx={{ fontSize: 50 }} />, 
+      path: '/manager', 
+      color: '#607d8b' 
+    });
+  }
 
   const handleLogout = () => {
     localStorage.removeItem('pos_token');
