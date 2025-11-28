@@ -5,6 +5,7 @@ import { HallPage } from './pages/HallPage';
 import { OrdersPage } from './pages/OrdersPage';
 import { SetupPage } from './pages/SetupPage';
 import { PinPadPage } from './pages/PinPadPage';
+import { ManagerPage } from './pages/ManagerPage';
 import React from 'react';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -30,6 +31,7 @@ function App() {
         <Route path="/pos" element={<ProtectedRoute><PosPage /></ProtectedRoute>} />
         <Route path="/hall" element={<ProtectedRoute><HallPage /></ProtectedRoute>} />
         <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
+        <Route path="/manager" element={<ProtectedRoute><ManagerPage /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );

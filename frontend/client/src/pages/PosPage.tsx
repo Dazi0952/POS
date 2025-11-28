@@ -184,6 +184,7 @@ function PosPage() {
           details: item.details
         })),
         totalAmount: cartTotal,
+        userId: localStorage.getItem('pos_user_id'),
         tableNumber: stateInfo?.tableNumber,
         orderType: stateInfo?.tableNumber ? 'dine-in' : orderSettings?.type,
         orderComment: globalComment,

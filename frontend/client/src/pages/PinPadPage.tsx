@@ -31,12 +31,6 @@ export const PinPadPage = () => {
         navigate('/setup'); // Jeśli brak ID restauracji, idź do setupu
         return;
       }
-
-      // Ustawiamy nagłówek ręcznie, bo axios interceptor może jeszcze nie mieć tokena usera
-      // Ale musi mieć tenant-id. W api/axios.ts mamy to skonfigurowane? 
-      // Dla pewności w komponencie SetupPage zrobiliśmy reload, więc axios powinien chwycić tenant_id z localStorage jeśli tam jest logika.
-      // Załóżmy, że interceptor w api/axios.ts pobiera x-tenant-id z localStorage.
-      
       try {
         const res = await api.get('/auth/employees');
         setEmployees(res.data);
@@ -69,6 +63,7 @@ export const PinPadPage = () => {
       // Zapisz token usera (sesję pracownika)
       localStorage.setItem('pos_token', res.data.token);
       localStorage.setItem('pos_user_name', res.data.name);
+      localStorage.setItem('pos_user_id', selectedUser._id);
       
       navigate('/'); // Idź do Dashboardu
     } catch (error) {

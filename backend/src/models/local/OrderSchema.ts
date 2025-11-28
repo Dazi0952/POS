@@ -51,7 +51,7 @@ const OrderSchema = new Schema({
       scheduledTime: { type: String }
   },
   // -------------------------------------------
-
+  createdBy: {type: Schema.Types.ObjectId, ref: 'User' },
   createdAt: { type: Date, default: Date.now }
 }, { strict: false }); // <--- DODANO strict: false (To pozwoli zapisać wszystko, nawet jeśli schemat ma błąd)
 

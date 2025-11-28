@@ -13,7 +13,7 @@ export const createOrder = async (req: Request, res: Response) => {
     const Table = getTenantModel<ITable>(db, 'Table', TableSchema);
     const Customer = getTenantModel<ICustomer>(db, 'Customer', CustomerSchema)
 
-    const { items, totalAmount, tableNumber, orderType, deliveryDetails } = req.body; 
+    const { items, totalAmount, tableNumber, orderType, deliveryDetails, userId } = req.body; 
 
     if (deliveryDetails && deliveryDetails.phone) {
         await Customer.findOneAndUpdate(
@@ -35,7 +35,8 @@ export const createOrder = async (req: Request, res: Response) => {
       tableNumber, 
       status: 'kitchen',
       orderType,
-      deliveryDetails
+      deliveryDetails,
+      createdBy: userId
     });
 
     if (tableNumber) {
