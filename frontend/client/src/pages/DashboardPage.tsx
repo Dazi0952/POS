@@ -1,9 +1,10 @@
-import { Container, Typography, Card, CardContent } from '@mui/material';
+import { Container, Typography, Card, CardContent, Box, Button } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { useNavigate } from 'react-router-dom';
 import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
 import TableRestaurantIcon from '@mui/icons-material/TableRestaurant';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import LogoutIcon from '@mui/icons-material/Logout'
 
 export const DashboardPage = () => {
   const navigate = useNavigate();
@@ -32,6 +33,12 @@ export const DashboardPage = () => {
     }
   ];
 
+  const handleLogout = () => {
+    localStorage.removeItem('pos_token');
+    localStorage.removeItem('pos_user_name');
+    navigate('/login');
+  }
+
   return (
     <Container maxWidth="lg" sx={{ mt: 8 }}>
       <Typography variant="h3" align="center" gutterBottom fontWeight="bold">
@@ -44,6 +51,22 @@ export const DashboardPage = () => {
       <Grid container spacing={4} justifyContent="center">
         {menuItems.map((item) => (
           <Grid size={{ xs: 12, sm: 6, md: 4 }} key={item.title}>
+            <Box mb={4} display="flex" justifyContent="space-between" alignItems="center">
+              <Box>
+                  <Typography variant="h4" fontWeight="bold">
+                  Dzień Dobry, {localStorage.getItem('pos_user_name') || 'Managerze'} 👋
+                  </Typography>
+                  {/* ... */}
+              </Box>
+              <Button 
+                  variant="outlined" 
+                  color="error" 
+                  startIcon={<LogoutIcon />} 
+                  onClick={handleLogout}
+              >
+                  PRZEŁĄCZ UŻYTKOWNIKA
+              </Button>
+            </Box>
             <Card 
               sx={{ 
                 height: 250, 

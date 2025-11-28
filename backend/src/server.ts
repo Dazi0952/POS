@@ -5,7 +5,7 @@ import connectGlobalDB from './config/database';
 import { tenantMiddleware } from './middleware/tenantMiddleware';
 import { getTenantModel } from './utils/getModel';
 import UserSchema, { IUser } from './models/local/UserSchema';
-import { loginUser } from './controllers/authController';
+import { loginUser, getEmployeesForPinPad } from './controllers/authController';
 import menuRoutes from './routes/menuRoutes';
 import orderRoutes from './routes/orderRoutes';
 import tableRoutes from './routes/tableRoutes';
@@ -62,6 +62,7 @@ app.post('/api/auth/login', tenantMiddleware, loginUser);
 app.use('/api/menu', tenantMiddleware, menuRoutes); 
 app.use('/api/orders', tenantMiddleware, orderRoutes);
 app.use('/api/tables', tenantMiddleware, tableRoutes);
+app.get('/api/auth/employees', tenantMiddleware, getEmployeesForPinPad);
 
 
 const PORT = process.env.PORT || 5000;

@@ -38,3 +38,16 @@ export const loginUser = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Login error' });
   }
 };
+
+export const getEmployeesForPinPad = async (req: Request, res: Response) => {
+  const dbConnection = req.tenantConnection;
+  if(!dbConnection) return res.status(500).json({ error: 'No DB Connection'});
+
+  try {
+    const User = getTenantModel<IUser>(dbConnection, 'User', UserSchema);
+    const employees = await User.find({isActive: true}).select('_id name role username');
+    res.json(employees);
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching emplyees'});
+  }
+};

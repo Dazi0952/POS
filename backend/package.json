@@ -8,6 +8,7 @@
     "dev": "nodemon src/server.ts",
     "build": "tsc",
     "seed": "ts-node src/scripts/seedGlobal.ts",
+    "seed-users": "ts-node src/scripts/seedUsers.ts",
     "import-menu": "ts-node src/scripts/importMenu.ts"
   },
   "keywords": [],

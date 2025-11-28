@@ -5,7 +5,15 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  config.headers['x-tenant-id'] = 'pizzeria-mario'; 
+  const tenantId = localStorage.getItem('pos_tenant_id');
+  if (tenantId) {
+    config.headers['x-tenant-id'] = tenantId;
+  }
+
+  const token = localStorage.getItem('pos_token');
+  if(token) {
+    config.headers['Authorization'] = `Bearer ${token}`;
+  }
   return config;
 });
 
