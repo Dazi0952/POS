@@ -5,6 +5,7 @@ export interface IIngredient extends Document {
   category: 'VEG' | 'MEAT' | 'CHEESE' | 'SAUCE' | 'OTHER';
   price: number; // Cena bazowa (lub dla rozmiaru standard)
   isAvailable: boolean;
+  validCategories: string[];
 }
 
 const IngredientSchema = new Schema({
@@ -15,7 +16,8 @@ const IngredientSchema = new Schema({
     default: 'OTHER' 
   },
   price: { type: Number, default: 0 },
-  isAvailable: { type: Boolean, default: true }
+  isAvailable: { type: Boolean, default: true },
+  validCategories: [{ type: Schema.Types.ObjectId, ref: 'Category' }] 
 });
 
 export default IngredientSchema;

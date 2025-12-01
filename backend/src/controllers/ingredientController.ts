@@ -31,3 +31,18 @@ export const deleteIngredient = async (req: Request, res: Response) => {
     res.json({ message: 'Deleted' });
   } catch (error) { res.status(500).json({ error: 'Error deleting' }); }
 };
+
+export const updateIngredient = async (req: Request, res: Response) => {
+  try {
+    const db = req.tenantConnection;
+    if (!db) return res.status(500).json({ error: 'No DB' });
+    const Ingredient = getTenantModel(db, 'Ingredient', IngredientSchema);
+    
+    const updated = await Ingredient.findByIdAndUpdate(
+        req.params.id, 
+        req.body, 
+        { new: true }
+    );
+    res.json(updated);
+  } catch (error) { res.status(500).json({ error: 'Error updating' }); }
+};

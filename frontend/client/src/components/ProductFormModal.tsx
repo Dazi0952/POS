@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { 
   Dialog, DialogTitle, DialogContent, DialogActions, Button, 
-  TextField, Box, Grid, IconButton, Typography, Checkbox, FormControlLabel, Select, MenuItem, InputLabel, FormControl 
+  TextField, Box, Grid, IconButton, Typography, Checkbox, FormControlLabel, Select, MenuItem, InputLabel, FormControl, Autocomplete 
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { Autocomplete } from '@mui/material';
+import api from '../api/axios';
 
-// Typy (takie same jak w reszcie apki)
+// Typy danych
 export interface ProductData {
   _id?: string;
   name: string;
@@ -20,6 +20,14 @@ export interface ProductData {
 }
 
 interface Category { _id: string; name: string; }
+
+// Interfejs składnika z bazy (do podpowiedzi)
+interface IngredientOption {
+    name: string;
+    category: string;
+    price: number;
+    validCategories?: string[];
+}
 
 interface Props {
   open: boolean;
@@ -41,28 +49,35 @@ export default function ProductFormModal({ open, onClose, onSave, initialData, c
     isAvailable: true
   });
 
-  const [availableIngredients, setAvailableIngredients] = useState<any[]>([]);
-  // Ładowanie danych przy edycji
+  // Lista składników z bazy (do autouzupełniania)
+  const [availableIngredients, setAvailableIngredients] = useState<IngredientOption[]>([]);
+
+  // 1. ŁADOWANIE DANYCH I SKŁADNIKÓW
   useEffect(() => {
     if (open) {
-      if (initialData) {
-        setFormData(initialData);
-      } else {
-        // Reset formularza przy dodawaniu nowego
-        setFormData({
-          name: '',
-          price: 0,
-          categoryId: categories.length > 0 ? categories[0]._id : '',
-          hasVariants: false,
-          variants: [],
-          ingredients: [],
-          isAvailable: true
-        });
-      }
-      import('../api/axios').then(module => {
-            const api = module.default;
-            api.get('/ingredients').then(res => setAvailableIngredients(res.data));
-        });
+        // Pobierz listę składników z bazy do podpowiedzi
+        api.get('/ingredients').then(res => setAvailableIngredients(res.data));
+
+        if (initialData) {
+            // TRYB EDYCJI: Ładujemy dane istniejącego produktu
+            setFormData({
+                ...initialData,
+                // Zabezpieczenie: jeśli tablice są undefined, zamień na puste []
+                variants: initialData.variants || [],
+                ingredients: initialData.ingredients || [] 
+            });
+        } else {
+            // TRYB DODAWANIA: Reset formularza
+            setFormData({
+                name: '',
+                price: 0,
+                categoryId: categories.length > 0 ? categories[0]._id : '',
+                hasVariants: false,
+                variants: [],
+                ingredients: [], // Pusta lista na start
+                isAvailable: true
+            });
+        }
     }
   }, [open, initialData, categories]);
 
@@ -115,7 +130,6 @@ export default function ProductFormModal({ open, onClose, onSave, initialData, c
   };
 
   const handleSubmit = () => {
-    // Prosta walidacja
     if (!formData.name || !formData.categoryId) {
         alert("Uzupełnij nazwę i kategorię!");
         return;
@@ -130,14 +144,14 @@ export default function ProductFormModal({ open, onClose, onSave, initialData, c
       
       <DialogContent dividers>
         <Grid container spacing={2}>
-            {/* 1. Podstawowe Dane */}
-            <Grid size= {{xs: 12}}>
+            {/* NAZWA I KATEGORIA */}
+            <Grid size={{ xs: 12}}>
                 <TextField 
                     fullWidth label="Nazwa Produktu" 
                     value={formData.name} onChange={e => handleChange('name', e.target.value)} 
                 />
             </Grid>
-            <Grid size= {{xs: 12}}>
+            <Grid size={{ xs: 12}}>
                 <FormControl fullWidth>
                     <InputLabel>Kategoria</InputLabel>
                     <Select 
@@ -152,8 +166,8 @@ export default function ProductFormModal({ open, onClose, onSave, initialData, c
                 </FormControl>
             </Grid>
 
-            {/* Cena Bazowa (tylko jeśli brak wariantów) */}
-            <Grid size= {{xs: 12}}>
+            {/* CENA BAZOWA (JEŚLI BRAK WARIANTÓW) */}
+            <Grid size={{ xs: 12}}>
                 <FormControlLabel 
                     control={<Checkbox checked={formData.hasVariants} onChange={e => handleChange('hasVariants', e.target.checked)} />} 
                     label="Produkt ma warianty (np. rozmiary)" 
@@ -167,9 +181,9 @@ export default function ProductFormModal({ open, onClose, onSave, initialData, c
                 )}
             </Grid>
 
-            {/* 2. Lista Wariantów */}
+            {/* LISTA WARIANTÓW */}
             {formData.hasVariants && (
-                <Grid size= {{xs: 12}}>
+                <Grid size={{ xs: 12}}>
                     <Box bgcolor="#e3f2fd" p={2} borderRadius={2}>
                         <Typography variant="subtitle2" fontWeight="bold">WARIANTY</Typography>
                         {formData.variants.map((variant, idx) => (
@@ -190,34 +204,46 @@ export default function ProductFormModal({ open, onClose, onSave, initialData, c
                 </Grid>
             )}
 
-            {/* 3. Lista Składników */}
-            <Grid size= {{xs: 12}}>
+            {/* LISTA SKŁADNIKÓW Z PODPOWIEDZIAMI */}
+            <Grid size={{ xs: 12}}>
                 <Box bgcolor="#f5f5f5" p={2} borderRadius={2}>
                     <Typography variant="subtitle2" fontWeight="bold">SKŁADNIKI (W cenie)</Typography>
-                    <Typography variant="caption" color="text.secondary">Co wchodzi w skład tego dania?</Typography>
+                    <Typography variant="caption" color="text.secondary">Zdefiniuj co wchodzi w skład tego dania.</Typography>
                     
                     {formData.ingredients.map((ing, idx) => (
                         <Box key={idx} display="flex" gap={1} mt={1} alignItems="center">
+                            
+                            {/* AUTOCOMPLETE Z FILTROWANIEM KATEGORII */}
                             <Autocomplete
                                 freeSolo
-                                options={availableIngredients.map(i => i.name)} // Lista podpowiedzi
+                                options={availableIngredients
+                                    .filter(dbIng => {
+                                        // Jeśli składnik nie ma ograniczeń kategorii -> pokaż
+                                        if (!dbIng.validCategories || dbIng.validCategories.length === 0) return true;
+                                        // Jeśli ma ograniczenia -> sprawdź czy pasuje do kategorii tego produktu
+                                        return dbIng.validCategories.includes(formData.categoryId);
+                                    })
+                                    .map(i => i.name)
+                                }
                                 value={ing.name}
-                                onChange={(event, newValue) => {
+                                onChange={(_event, newValue) => {
+                                    // Wybrano z listy
                                     updateIngredient(idx, 'name', newValue);
-                                    // Automatyczne ustawienie ceny z bazy
-                                    const dbIng = availableIngredients.find(db => db.name === newValue);
-                                    if (dbIng) {
-                                        updateIngredient(idx, 'price', dbIng.price);
-                                    }
+                                    
+                                    // (Opcjonalnie: tu można by pobierać cenę, ale w edytorze 
+                                    // definiujemy składniki bazowe, które zazwyczaj mają cenę 0 w ramach pizzy,
+                                    // więc nie nadpisujemy ceny automatycznie na płatną)
                                 }}
-                                onInputChange={(event, newInputValue) => {
+                                onInputChange={(_event, newInputValue) => {
+                                    // Wpisano ręcznie
                                     updateIngredient(idx, 'name', newInputValue);
                                 }}
                                 renderInput={(params) => (
-                                    <TextField {...params} label="Nazwa składnika" size="small" fullWidth />
+                                    <TextField {...params} label="Składnik" size="small" fullWidth />
                                 )}
-                                sx={{ width: '100%' }}
+                                sx={{ flex: 1 }}
                             />
+
                             <FormControlLabel 
                                 control={
                                     <Checkbox 
