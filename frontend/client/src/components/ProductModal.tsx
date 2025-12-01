@@ -6,84 +6,82 @@ import {
 } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
-// --- BAZA WIEDZY O CENACH ---
-// Index 0 = 32cm, Index 1 = 43cm, Index 2 = 50cm
+
+// --- KONFIGURACJA LOGIKI FILTROWANIA ---
+
+// Ceny dla rozmiarów (Index 0, 1, 2)
 const PRICING_RULES = {
-    VEG:   [2, 3, 4],   // Warzywa
-    MEAT:  [6, 8, 10],  // Mięsne
-    CHEESE:[6, 9, 12],  // Sery
-    SAUCE: [2, 2, 2],   // Sosy
-    OTHER: [3, 4, 5]    // Inne
+    VEG:   [2, 3, 4],
+    MEAT:  [6, 8, 10],
+    CHEESE:[6, 9, 12],
+    SAUCE: [2, 2, 2],
+    OTHER: [3, 4, 5]
 };
 
-// --- GLOBALNA LISTA WSZYSTKICH MOŻLIWYCH DODATKÓW ---
+// Baza składników z przypisaniem do typu (scope)
+// scope: ['ALL'] - pasuje do wszystkiego
+// scope: ['PIZZA'] - tylko pizze
+// scope: ['BURGER'] - tylko burgery
 const ALL_INGREDIENTS_DB = [
-    // VEG
-    { name: "Cebula", type: 'VEG' },
-    { name: "Czosnek", type: 'VEG' },
-    { name: "Pieczarki", type: 'VEG' },
-    { name: "Papryka", type: 'VEG' },
-    { name: "Zielona papryka", type: 'VEG' },
-    { name: "Jalapeno", type: 'VEG' },
-    { name: "Świeża chilli", type: 'VEG' },
-    { name: "Brokuły", type: 'VEG' },
-    { name: "Szpinak", type: 'VEG' },
-    { name: "Rukola", type: 'VEG' },
-    { name: "Kukurydza", type: 'VEG' },
-    { name: "Fasola", type: 'VEG' },
-    { name: "Oliwki", type: 'VEG' },
-    { name: "Oliwki czarne", type: 'VEG' },
-    { name: "Oliwki zielone", type: 'VEG' },
-    { name: "Pomidor", type: 'VEG' },
-    { name: "Pomidorki cherry", type: 'VEG' },
-    { name: "Ogórek konserwowy", type: 'VEG' },
-    { name: "Ananas", type: 'VEG' },
-    { name: "Świeża bazylia", type: 'VEG' },
-    { name: "Świeże oregano", type: 'VEG' },
-    { name: "Natka pietruszki", type: 'VEG' },
-    { name: "Frytki", type: 'VEG' },
+    // --- UNIWERSALNE (Boczek, Warzywa) ---
+    { name: "Boczek", type: 'MEAT', scope: ['ALL'] },
+    { name: "Bekon", type: 'MEAT', scope: ['ALL'] },
+    { name: "Cebula", type: 'VEG', scope: ['ALL'] },
+    { name: "Cebula czerwona", type: 'VEG', scope: ['ALL'] },
+    { name: "Jalapeno", type: 'VEG', scope: ['ALL'] },
+    { name: "Świeża chilli", type: 'VEG', scope: ['ALL'] },
+    { name: "Pomidor", type: 'VEG', scope: ['ALL'] },
+    { name: "Pieczarki", type: 'VEG', scope: ['ALL'] },
+    { name: "Kurczak", type: 'MEAT', scope: ['ALL'] },
+    { name: "Grillowany kurczak", type: 'MEAT', scope: ['ALL'] },
+    { name: "Wołowina", type: 'MEAT', scope: ['ALL'] },
+    { name: "Sos BBQ", type: 'SAUCE', scope: ['ALL'] },
+    { name: "Sos Czosnkowy", type: 'SAUCE', scope: ['ALL'] },
+    { name: "Rukola", type: 'VEG', scope: ['ALL'] },
 
-    // MEAT
-    { name: "Szynka", type: 'MEAT' },
-    { name: "Boczek", type: 'MEAT' },
-    { name: "Salami", type: 'MEAT' },
-    { name: "Pepperoni", type: 'MEAT' },
-    { name: "Kiełbasa pepperoni", type: 'MEAT' },
-    { name: "Kiełbasa wiejska", type: 'MEAT' },
-    { name: "Kabanos", type: 'MEAT' },
-    { name: "Kurczak", type: 'MEAT' },
-    { name: "Grillowany kurczak", type: 'MEAT' },
-    { name: "Wołowina", type: 'MEAT' },
-    { name: "Prosciutto crudo", type: 'MEAT' },
-    { name: "Tuńczyk", type: 'MEAT' },
-    { name: "Anchois", type: 'MEAT' },
-    { name: "Krewetki", type: 'MEAT' },
-    { name: "Owoce morza", type: 'MEAT' },
+    // --- TYLKO BURGERY ---
+    { name: "Ser Cheddar", type: 'CHEESE', scope: ['BURGER'] },
+    { name: "Ser Mimolette", type: 'CHEESE', scope: ['BURGER'] },
+    { name: "Pikle", type: 'VEG', scope: ['BURGER'] },
+    { name: "Ogórek", type: 'VEG', scope: ['BURGER'] },
+    { name: "Ogórek konserwowy", type: 'VEG', scope: ['BURGER'] },
+    { name: "Cebula prażona", type: 'VEG', scope: ['BURGER'] },
+    { name: "Jajko sadzone", type: 'OTHER', scope: ['BURGER'] },
+    { name: "Majonez", type: 'SAUCE', scope: ['BURGER'] },
+    { name: "Ketchup", type: 'SAUCE', scope: ['BURGER'] },
+    { name: "Musztarda", type: 'SAUCE', scope: ['BURGER'] },
+    { name: "Sos różowy", type: 'SAUCE', scope: ['BURGER'] },
+    { name: "Sos Chimichurri", type: 'SAUCE', scope: ['BURGER'] },
+    { name: "Nachos", type: 'OTHER', scope: ['BURGER'] },
+    { name: "Sałata", type: 'VEG', scope: ['BURGER'] },
+    { name: "Bułka wypiekana", type: 'OTHER', scope: ['BURGER'] },
 
-    // CHEESE
-    { name: "Mozzarella", type: 'CHEESE' },
-    { name: "Mozzarella (Double)", type: 'CHEESE' },
-    { name: "Ser Cheddar", type: 'CHEESE' },
-    { name: "Parmezan", type: 'CHEESE' },
-    { name: "Gorgonzola", type: 'CHEESE' },
-    { name: "Ser Mimolette", type: 'CHEESE' },
-
-    // SAUCE
-    { name: "Sos pomidorowy", type: 'SAUCE' },
-    { name: "Sos BBQ", type: 'SAUCE' },
-    { name: "Sos Czosnkowy", type: 'SAUCE' },
-    { name: "Tabasco", type: 'SAUCE' }
+    // --- TYLKO PIZZE ---
+    { name: "Mozzarella", type: 'CHEESE', scope: ['PIZZA'] },
+    { name: "Mozzarella (Double)", type: 'CHEESE', scope: ['PIZZA'] },
+    { name: "Parmezan", type: 'CHEESE', scope: ['PIZZA'] },
+    { name: "Gorgonzola", type: 'CHEESE', scope: ['PIZZA'] },
+    { name: "Kukurydza", type: 'VEG', scope: ['PIZZA'] },
+    { name: "Brokuły", type: 'VEG', scope: ['PIZZA'] },
+    { name: "Szpinak", type: 'VEG', scope: ['PIZZA'] },
+    { name: "Ananas", type: 'VEG', scope: ['PIZZA'] },
+    { name: "Oliwki", type: 'VEG', scope: ['PIZZA'] },
+    { name: "Oliwki czarne", type: 'VEG', scope: ['PIZZA'] },
+    { name: "Oliwki zielone", type: 'VEG', scope: ['PIZZA'] },
+    { name: "Krewetki", type: 'MEAT', scope: ['PIZZA'] },
+    { name: "Anchois", type: 'MEAT', scope: ['PIZZA'] },
+    { name: "Tabasco", type: 'SAUCE', scope: ['PIZZA'] },
+    { name: "Sos pomidorowy", type: 'SAUCE', scope: ['PIZZA'] },
+    { name: "Świeża bazylia", type: 'VEG', scope: ['PIZZA'] },
+    { name: "Świeże oregano", type: 'VEG', scope: ['PIZZA'] },
+    { name: "Pepperoni", type: 'MEAT', scope: ['PIZZA'] },
+    { name: "Salami", type: 'MEAT', scope: ['PIZZA'] },
+    { name: "Kiełbasa wiejska", type: 'MEAT', scope: ['PIZZA'] },
+    { name: "Szynka", type: 'MEAT', scope: ['PIZZA'] }
 ];
 
-interface Variant {
-  name: string;
-  price: number;
-}
-interface Ingredient {
-  name: string;
-  price: number;
-  isDefault: boolean;
-}
+interface Variant { name: string; price: number; }
+interface Ingredient { name: string; price: number; isDefault: boolean; }
 export interface Product {
   _id: string;
   name: string;
@@ -97,7 +95,7 @@ export interface Product {
 export interface CartItemPayload {
   product: Product;
   selectedVariant?: Variant;
-  selectedIngredients: { name: string; price: number; quantity: number; isBase: boolean }[]; 
+  selectedIngredients: { name: string; price: number; quantity: number; isBase: boolean }[];
   comment: string;
   finalPrice: number;
 }
@@ -119,6 +117,24 @@ export default function ProductModal({ open, onClose, product, onAddToCart, init
   const [ingredientsMap, setIngredientsMap] = useState<Record<string, number>>({}); 
   const [comment, setComment] = useState('');
 
+  // --- DETEKCJA TYPU PRODUKTU (PIZZA vs BURGER) ---
+  const getProductType = (): 'PIZZA' | 'BURGER' | 'OTHER' => {
+      if (!product) return 'OTHER';
+      
+      // Sprawdzamy nazwy wariantów
+      const variantNames = product.variants.map(v => v.name.toLowerCase()).join(' ');
+      
+      if (variantNames.includes('cm')) return 'PIZZA';
+      if (variantNames.includes('180g') || variantNames.includes('360g') || variantNames.includes('150g') || variantNames.includes('300g') || variantNames.includes('540g')|| variantNames.includes('260g')) return 'BURGER';
+      
+      // Fallback: po nazwie produktu
+      const name = product.name.toLowerCase();
+      if (name.includes('pizza')) return 'PIZZA';
+      if (name.includes('burger')) return 'BURGER';
+      
+      return 'OTHER';
+  };
+
   useEffect(() => {
     if (product && open) {
       // 1. Wariant
@@ -132,26 +148,20 @@ export default function ProductModal({ open, onClose, product, onAddToCart, init
       // 2. Składniki
       const initialMap: Record<string, number> = {};
       
-      // Najpierw ładujemy domyślne z produktu
+      // Domyślne z produktu
       product.ingredients.forEach(ing => {
         initialMap[ing.name] = ing.isDefault ? 1 : 0;
       });
 
-      // Jeśli EDYTUJEMY, nadpisujemy ilościami z koszyka
+      // Z edycji
       if (initialValues?.ingredients) {
-          // Resetujemy mapę do zera przed nałożeniem edycji? 
-          // Nie, bo initialValues zawierają WSZYSTKIE składniki (bazowe i dodatkowe) jakie miał item
-          // Więc najlepiej wyzerować mapę i wgrać to co w initialValues
-          Object.keys(initialMap).forEach(k => initialMap[k] = 0); // Reset
-          
+          Object.keys(initialMap).forEach(k => initialMap[k] = 0); 
           initialValues.ingredients.forEach(ing => {
               initialMap[ing.name] = ing.quantity;
           });
       }
 
       setIngredientsMap(initialMap);
-
-      // 3. Komentarz
       setComment(initialValues?.comment || '');
     }
   }, [product, open, initialValues]);
@@ -164,7 +174,6 @@ export default function ProductModal({ open, onClose, product, onAddToCart, init
     const type = ingDef ? ingDef.type : 'OTHER';
     // @ts-ignore
     const prices = PRICING_RULES[type] || PRICING_RULES.OTHER;
-    // Zabezpieczenie: jeśli variantIndex wykracza poza tablicę, bierzemy ostatnią cenę
     return prices[Math.min(variantIndex, prices.length - 1)];
   };
 
@@ -172,14 +181,23 @@ export default function ProductModal({ open, onClose, product, onAddToCart, init
     return product.ingredients.some(i => i.name === name && i.isDefault);
   };
 
-  // --- PRZYGOTOWANIE LIST ---
-  // 1. Składniki bazowe (te co są w pizzy)
+  // --- FILTROWANIE LIST ---
+  const currentProductType = getProductType();
   const baseIngredients = product.ingredients;
 
-  // 2. Dodatki (Wszystko z bazy MINUS to co jest w pizzy)
-  const possibleExtras = ALL_INGREDIENTS_DB.filter(extra => 
-    !baseIngredients.some(base => base.name === extra.name)
-  ).sort((a, b) => a.type.localeCompare(b.type)); // Sortowanie typami
+  // Filtrujemy globalną bazę:
+  // 1. Usuń to co już jest w pizzy/burgerze
+  // 2. Zostaw tylko to, co pasuje do typu (scope) lub jest uniwersalne ('ALL')
+  const possibleExtras = ALL_INGREDIENTS_DB.filter(extra => {
+    const isAlreadyInBase = baseIngredients.some(base => base.name === extra.name);
+    if (isAlreadyInBase) return false;
+
+    // Logika Scope
+    if (extra.scope.includes('ALL')) return true;
+    if (extra.scope.includes(currentProductType)) return true;
+    
+    return false;
+  }).sort((a, b) => a.type.localeCompare(b.type));
 
   // --- KALKULACJA SUMY ---
   const basePrice = product.hasVariants && product.variants.length > 0
@@ -190,6 +208,9 @@ export default function ProductModal({ open, onClose, product, onAddToCart, init
     if (qty === 0) return sum;
     const price = getIngredientPrice(name);
     const isDefault = isDefaultIngredient(name);
+    
+    // Jeśli składnik bazowy: płacimy tylko za extra porcje (>1)
+    // Jeśli dodatek: płacimy za każdą porcję (>0)
     const chargeableQty = isDefault ? Math.max(0, qty - 1) : qty;
     return sum + (chargeableQty * price);
   }, 0);
@@ -208,6 +229,7 @@ export default function ProductModal({ open, onClose, product, onAddToCart, init
     const selectedIngs = Object.entries(ingredientsMap)
       .filter(([name, qty]) => {
         const isBase = isDefaultIngredient(name);
+        // Zapisujemy, jeśli ilość > 0 LUB jeśli to był bazowy składnik (żeby zapisać usunięcie - ilość 0)
         return qty > 0 || isBase;
       })
       .map(([name, qty]) => ({
@@ -263,13 +285,15 @@ export default function ProductModal({ open, onClose, product, onAddToCart, init
       <DialogTitle sx={{ bgcolor: '#1a2027', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Box>
             <Typography variant="h6">{product.name}</Typography>
-            {product.hasVariants && <Typography variant="caption" sx={{ opacity: 0.8 }}>Rozmiar wpływa na cenę dodatków</Typography>}
+            <Typography variant="caption" sx={{ opacity: 0.8 }}>
+                Typ: {currentProductType === 'PIZZA' ? 'Pizza' : currentProductType === 'BURGER' ? 'Burger' : 'Inne'}
+            </Typography>
         </Box>
         <Typography variant="h5" fontWeight="bold">{finalPrice.toFixed(2)} zł</Typography>
       </DialogTitle>
       
       <DialogContent dividers>
-        {/* WYBÓR ROZMIARU */}
+        {/* WYBÓR WARIANTU */}
         {product.hasVariants && (
           <Box mb={3}>
             <RadioGroup row value={variantIndex} onChange={(e) => setVariantIndex(Number(e.target.value))}>
@@ -302,23 +326,24 @@ export default function ProductModal({ open, onClose, product, onAddToCart, init
 
         {/* SKŁADNIKI BAZOWE */}
         <Box mb={3}>
-          <Typography variant="subtitle2" color="text.secondary" gutterBottom>SKŁADNIKI W PIZZY</Typography>
+          <Typography variant="subtitle2" color="text.secondary" gutterBottom>SKŁADNIKI BAZOWE</Typography>
           {baseIngredients.map(ing => renderIngredientRow(ing.name, true))}
         </Box>
 
         <Divider sx={{ my: 2 }} />
 
-        {/* DODATKI PŁATNE */}
+        {/* DODATKI PŁATNE - FILTROWANE */}
         <Box mb={3}>
-           <Typography variant="subtitle2" color="text.secondary" gutterBottom>DODATKI PŁATNE</Typography>
+           <Typography variant="subtitle2" color="text.secondary" gutterBottom>DODATKI PŁATNE (Dopasowane)</Typography>
            {possibleExtras.map(extra => renderIngredientRow(extra.name, false))}
+           {possibleExtras.length === 0 && <Typography variant="caption" fontStyle="italic">Brak dodatków dla tej kategorii.</Typography>}
         </Box>
 
         <Divider sx={{ my: 2 }} />
         
         <TextField
           fullWidth
-          label="Komentarz"
+          label="Komentarz / Instrukcje"
           multiline
           rows={2}
           variant="outlined"
@@ -330,7 +355,7 @@ export default function ProductModal({ open, onClose, product, onAddToCart, init
       <DialogActions sx={{ p: 2, bgcolor: '#f5f5f5' }}>
         <Button onClick={onClose} color="inherit" size="large">Anuluj</Button>
         <Button onClick={handleConfirm} variant="contained" size="large" color="success" sx={{ px: 4 }}>
-          ZATWIERDŹ
+          {initialValues ? 'ZAPISZ ZMIANY' : 'DODAJ'}
         </Button>
       </DialogActions>
     </Dialog>

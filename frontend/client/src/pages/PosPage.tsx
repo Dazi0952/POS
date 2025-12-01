@@ -243,26 +243,65 @@ function PosPage() {
             <Box key={category._id} id={category._id} mb={5} sx={{ scrollMarginTop: '140px' }}>
               <Typography variant="h5" fontWeight="bold" color="text.secondary" gutterBottom sx={{ borderLeft: '5px solid #1976d2', pl: 2, mb: 3 }}>{category.name}</Typography>
               <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' }, gap: 2 }}>
-                {menu.products.filter((p) => p.categoryId === category._id).map((product) => (
-                      <Card key={product._id} sx={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', transition: '0.2s', border: '1px solid transparent', '&:hover': { transform: 'translateY(-4px)', boxShadow: 6, borderColor: '#1976d2' }, bgcolor: 'white', borderRadius: 3, height: '100%', minHeight: 140 }}
-                        onClick={() => handleProductClick(product)}
-                      >
-                        <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                          <Box>
-                             <Typography variant="h6" fontWeight="bold" sx={{ lineHeight: 1.1, mb: 1, fontSize: '1.1rem' }}>{product.name}</Typography>
-                             <Typography variant="caption" color="text.secondary" sx={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{product.hasVariants ? "Wybierz rozmiar" : "Standard"}</Typography>
-                          </Box>
-                          <Box mt={2} display="flex" justifyContent="space-between" alignItems="center">
-                             <Box sx={{ opacity: 0.1, color: 'primary.main', transform: 'scale(1.5)' }}>{getCategoryIcon(category.name)}</Box>
-                             <Typography variant="h6" color="primary" fontWeight="bold">
-                               {product.hasVariants && product.variants.length > 0 ? <span style={{fontSize: '0.7em', color: '#666'}}>od </span> : ''}
-                               {(product.hasVariants && product.variants.length > 0 ? product.variants[0].price : product.price).toFixed(2)}<span style={{fontSize: '0.7em'}}> zł</span>
-                             </Typography>
-                          </Box>
-                        </CardContent>
-                      </Card>
-                  ))}
-              </Box>
+  {menu.products
+    .filter((p) => p.categoryId === category._id)
+    .map((product) => {
+      
+      // --- BEZPIECZNE OBLICZANIE CENY (FIX BŁĘDU) ---
+      let displayPrice = 0;
+      let hasVariants = false;
+
+      if (product.hasVariants && product.variants && product.variants.length > 0) {
+          displayPrice = product.variants[0].price || 0;
+          hasVariants = true;
+      } else {
+          displayPrice = product.price || 0;
+      }
+      // -----------------------------------------------
+
+      return (
+        <Card 
+          key={product._id} 
+          sx={{ 
+            cursor: 'pointer', 
+            display: 'flex', flexDirection: 'column',
+            transition: '0.2s',
+            border: '1px solid transparent',
+            '&:hover': { transform: 'translateY(-4px)', boxShadow: 6, borderColor: '#1976d2' },
+            bgcolor: 'white',
+            borderRadius: 3,
+            height: '100%', 
+            minHeight: 140
+          }}
+          onClick={() => handleProductClick(product)}
+        >
+          <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <Box>
+                <Typography variant="h6" fontWeight="bold" sx={{ lineHeight: 1.1, mb: 1, fontSize: '1.1rem' }}>
+                  {product.name}
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                  {hasVariants ? "Wybierz wariant" : "Standard"}
+                </Typography>
+            </Box>
+            
+            <Box mt={2} display="flex" justifyContent="space-between" alignItems="center">
+                <Box sx={{ opacity: 0.1, color: 'primary.main', transform: 'scale(1.5)' }}>
+                  {getCategoryIcon(category.name)}
+                </Box>
+
+                <Typography variant="h6" color="primary" fontWeight="bold">
+                  {hasVariants ? <span style={{fontSize: '0.7em', color: '#666'}}>od </span> : ''}
+                  {/* Używamy bezpiecznej zmiennej displayPrice */}
+                  {displayPrice.toFixed(2)}
+                  <span style={{fontSize: '0.7em'}}> zł</span>
+                </Typography>
+            </Box>
+          </CardContent>
+        </Card>
+      );
+  })}
+</Box>
             </Box>
           ))}
           <Box height={100} /> 

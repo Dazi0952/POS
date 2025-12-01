@@ -35,7 +35,7 @@ const ProductSchema = new Schema({
   ingredients: [{
     name: String,
     price: { type: Number, default: 0 },
-    isDefault: { type: Boolean, default: false }
+    isDefault: { type: Boolean, default: false },
   }],
 
   price: { type: Number, default: 0 }
