@@ -8,6 +8,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import ProductFormModal from '../components/ProductFormModal';
 import type { ProductData } from '../components/ProductFormModal';
+import { useNavigate } from 'react-router-dom';
+import CategoryIcon from '@mui/icons-material/Category';
 // Typy (proste, do listy)
 interface Product { _id: string; name: string; price: number; categoryId: string; }
 interface Category { _id: string; name: string; }
@@ -18,6 +20,7 @@ export const MenuEditorPage = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<ProductData | null>(null);
+  const navigate = useNavigate();
 
   const fetchMenu = async () => {
     try {
@@ -80,6 +83,16 @@ export const MenuEditorPage = () => {
     <Container maxWidth="lg" sx={{ mt: 4, mb: 10 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
         <Typography variant="h4" fontWeight="bold">Zarządzanie Menu</Typography>
+        <Box display="flex" gap={2}>
+            <Button 
+                variant="outlined" 
+                startIcon={<CategoryIcon />} 
+                onClick={() => navigate('/admin/ingredients')}
+                color="secondary"
+            >
+                BAZA SKŁADNIKÓW
+            </Button>
+        </Box>
         <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={handleAddProduct}>
             DODAJ PRODUKT
         </Button>

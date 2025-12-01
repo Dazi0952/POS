@@ -5,6 +5,7 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { Autocomplete } from '@mui/material';
 
 // Typy (takie same jak w reszcie apki)
 export interface ProductData {
@@ -40,6 +41,7 @@ export default function ProductFormModal({ open, onClose, onSave, initialData, c
     isAvailable: true
   });
 
+  const [availableIngredients, setAvailableIngredients] = useState<any[]>([]);
   // Ładowanie danych przy edycji
   useEffect(() => {
     if (open) {
@@ -57,6 +59,10 @@ export default function ProductFormModal({ open, onClose, onSave, initialData, c
           isAvailable: true
         });
       }
+      import('../api/axios').then(module => {
+            const api = module.default;
+            api.get('/ingredients').then(res => setAvailableIngredients(res.data));
+        });
     }
   }, [open, initialData, categories]);
 
@@ -192,9 +198,25 @@ export default function ProductFormModal({ open, onClose, onSave, initialData, c
                     
                     {formData.ingredients.map((ing, idx) => (
                         <Box key={idx} display="flex" gap={1} mt={1} alignItems="center">
-                            <TextField 
-                                placeholder="Nazwa (np. Ser)" size="small" fullWidth
-                                value={ing.name} onChange={e => updateIngredient(idx, 'name', e.target.value)}
+                            <Autocomplete
+                                freeSolo
+                                options={availableIngredients.map(i => i.name)} // Lista podpowiedzi
+                                value={ing.name}
+                                onChange={(event, newValue) => {
+                                    updateIngredient(idx, 'name', newValue);
+                                    // Automatyczne ustawienie ceny z bazy
+                                    const dbIng = availableIngredients.find(db => db.name === newValue);
+                                    if (dbIng) {
+                                        updateIngredient(idx, 'price', dbIng.price);
+                                    }
+                                }}
+                                onInputChange={(event, newInputValue) => {
+                                    updateIngredient(idx, 'name', newInputValue);
+                                }}
+                                renderInput={(params) => (
+                                    <TextField {...params} label="Nazwa składnika" size="small" fullWidth />
+                                )}
+                                sx={{ width: '100%' }}
                             />
                             <FormControlLabel 
                                 control={

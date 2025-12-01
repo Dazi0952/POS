@@ -10,6 +10,7 @@ import menuRoutes from './routes/menuRoutes';
 import orderRoutes from './routes/orderRoutes';
 import tableRoutes from './routes/tableRoutes';
 import reportsRoutes from './routes/reportsRoutes';
+import ingredientRoutes from './routes/ingredientRoutes';
 
 dotenv.config();
 const app = express();
@@ -65,7 +66,7 @@ app.use('/api/orders', tenantMiddleware, orderRoutes);
 app.use('/api/tables', tenantMiddleware, tableRoutes);
 app.use('/api/reports', tenantMiddleware, reportsRoutes);
 app.get('/api/auth/employees', tenantMiddleware, getEmployeesForPinPad);
-
+app.use('/api/ingredients', tenantMiddleware, ingredientRoutes);
 
 const PORT = process.env.PORT || 5000;
 
