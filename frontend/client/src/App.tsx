@@ -6,6 +6,7 @@ import { OrdersPage } from './pages/OrdersPage';
 import { SetupPage } from './pages/SetupPage';
 import { PinPadPage } from './pages/PinPadPage';
 import { ManagerPage } from './pages/ManagerPage';
+import { MenuEditorPage } from './pages/MenuEditorPage';
 import React from 'react';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -32,6 +33,7 @@ function App() {
         <Route path="/hall" element={<ProtectedRoute><HallPage /></ProtectedRoute>} />
         <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
         <Route path="/manager" element={<ProtectedRoute><ManagerPage /></ProtectedRoute>} />
+        <Route path="/admin/menu" element={<ProtectedRoute><MenuEditorPage /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );

@@ -47,3 +47,43 @@ export const getMenu = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Error fetching menu' });
   }
 };
+
+export const deleteProduct = async (req: Request, res: Response) => {
+  try {
+    const db = req.tenantConnection;
+    if (!db) return res.status(500).json({ error: 'No DB connection' });
+
+    const Product = getTenantModel(db, 'Product', ProductSchema);
+    const { id } = req.params;
+
+    await Product.findByIdAndDelete(id);
+    res.json({ message: 'Product deleted' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error deleting product' });
+  }
+};
+
+export const updateProduct = async (req: Request, res: Response) => {
+  try {
+    const db = req.tenantConnection;
+    if (!db) return res.status(500).json({ error: 'No DB connection' });
+
+    const Product = getTenantModel(db, 'Product', ProductSchema);
+    const { id } = req.params;
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      id,
+      req.body,
+      { new: true } 
+    );
+
+    if (!updatedProduct) {
+        return res.status(404).json({ error: 'Product not found' });
+    }
+
+    res.json(updatedProduct);
+  } catch (error) {
+    res.status(500).json({ error: 'Error updating product' });
+  }
+};

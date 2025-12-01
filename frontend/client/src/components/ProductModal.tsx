@@ -269,7 +269,7 @@ export default function ProductModal({ open, onClose, product, onAddToCart, init
       </DialogTitle>
       
       <DialogContent dividers>
-        {/* WYBÓR ROZMIARU (Bez Grida, czysty Flexbox) */}
+        {/* WYBÓR ROZMIARU */}
         {product.hasVariants && (
           <Box mb={3}>
             <RadioGroup row value={variantIndex} onChange={(e) => setVariantIndex(Number(e.target.value))}>

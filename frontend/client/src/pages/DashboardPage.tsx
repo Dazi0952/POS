@@ -6,6 +6,7 @@ import TableRestaurantIcon from '@mui/icons-material/TableRestaurant';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import LogoutIcon from '@mui/icons-material/Logout'
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import RestaurantIcon from '@mui/icons-material/Restaurant';
 
 export const DashboardPage = () => {
   const navigate = useNavigate();
@@ -44,7 +45,15 @@ export const DashboardPage = () => {
       path: '/manager', 
       color: '#607d8b' 
     });
+    menuItems.push({ 
+      title: 'EDYTOR MENU', 
+      subtitle: 'Zarządzanie Produktami', 
+      icon: <RestaurantIcon sx={{ fontSize: 50 }} />, 
+      path: '/admin/menu', 
+      color: '#9c27b0'
+    });
   }
+  
 
   const handleLogout = () => {
     localStorage.removeItem('pos_token');
