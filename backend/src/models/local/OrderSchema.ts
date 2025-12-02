@@ -22,6 +22,7 @@ const DeliveryDetailsSchema = new Schema({
 }, { _id: false }); // _id: false, bo nie potrzebujemy osobnego ID dla adresu
 
 const OrderSchema = new Schema({
+  dailyNumber: { type: Number, default: 0 },
   // Lista produktów
   items: [{
     productId: { type: Schema.Types.ObjectId, ref: 'Product' },

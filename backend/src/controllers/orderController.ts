@@ -13,6 +13,16 @@ export const createOrder = async (req: Request, res: Response) => {
     const Table = getTenantModel<ITable>(db, 'Table', TableSchema);
     const Customer = getTenantModel<ICustomer>(db, 'Customer', CustomerSchema)
 
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const countToday = await Order.countDocuments({
+        createdAt: { $gte: startOfDay, $lte: endOfDay }
+    });
+    const nextDailyNumber = countToday + 1;
+
     const { items, totalAmount, tableNumber, orderType, deliveryDetails, userId } = req.body; 
 
     if (deliveryDetails && deliveryDetails.phone) {
@@ -30,6 +40,7 @@ export const createOrder = async (req: Request, res: Response) => {
         );
     }
     const newOrder = await Order.create({
+      dailyNumber: nextDailyNumber,
       items,
       totalAmount,
       tableNumber, 
@@ -105,5 +116,26 @@ export const closeOrder = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error closing order' });
+  }
+};
+
+export const updateOrder = async (req: Request, res: Response) => {
+  try {
+    const db = req.tenantConnection;
+    if (!db) return res.status(500).json({ error: 'No DB connection' });
+
+    const Order = getTenantModel(db, 'Order', OrderSchema);
+    const { id } = req.params;
+    
+    // Aktualizujemy wszystko co przyszło w body (items, totalAmount, itp.)
+    const updatedOrder = await Order.findByIdAndUpdate(
+        id, 
+        req.body, 
+        { new: true }
+    );
+
+    res.json(updatedOrder);
+  } catch (error) {
+    res.status(500).json({ error: 'Update failed' });
   }
 };

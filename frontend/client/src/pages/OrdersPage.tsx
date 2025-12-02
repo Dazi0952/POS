@@ -1,53 +1,28 @@
 import { useEffect, useState } from 'react';
 import api from '../api/axios';
-import { useNavigate } from 'react-router-dom';
 import { 
   Container, Typography, Box, Paper, Tabs, Tab, 
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Button, CircularProgress, Stack 
+  Button, CircularProgress, Card, CardContent, Chip, Divider 
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
-// Importujemy ikony
-import DeliveryDiningIcon from '@mui/icons-material/DeliveryDining';
-import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
-import RestaurantIcon from '@mui/icons-material/Restaurant';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
+// Ikony
+import EditIcon from '@mui/icons-material/Edit';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import TimerIcon from '@mui/icons-material/Timer';
 
-// Importujemy Modale
 import PaymentModal from '../components/PaymentModal';
-import OrderDetailsModal from '../components/OrderDetailsModal'; // Importujemy też typ z modala
-
-// --- TYPY ZGODNE Z BACKENDEM ---
-// Zamiast definiować je ręcznie, użyjemy typu OrderDetails z modala, 
-// ponieważ on ma już pełną strukturę (z details, ingredients itd.)
-// Ale dla porządku w pliku, zdefiniuję je tutaj poprawnie:
-
-interface DeliveryDetails {
-    address?: string;
-    phone?: string;
-    scheduledTime?: string;
-}
-
-interface OrderItem {
-  name: string;
-  quantity: number;
-  price: number;
-  // TO JEST TO, CZEGO BRAKOWAŁO:
-  details?: {
-    variant?: string;
-    ingredients: { name: string; quantity: number; isBase: boolean }[];
-    comment?: string;
-  };
-}
-
+import OrderDetailsModal from '../components/OrderDetailsModal';
 interface Order {
   _id: string;
+  dailyNumber?: number;
   tableNumber?: string;
-  orderType?: string; // 'dine-in' | 'takeout' | 'delivery'
-  deliveryDetails?: DeliveryDetails;
+  orderType?: string;
+  deliveryDetails?: { address?: string; phone?: string; scheduledTime?: string; name?: string };
   totalAmount: number;
   status: 'kitchen' | 'ready' | 'closed';
   createdAt: string;
-  items: OrderItem[]; 
+  items: any[]; 
 }
 
 export const OrdersPage = () => {
@@ -55,249 +30,237 @@ export const OrdersPage = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [tabValue, setTabValue] = useState(0);
+  const [now, setNow] = useState(new Date());
 
-  // Stan Modala Płatności
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
-
-  // Stan Modala Szczegółów
-  // Używamy 'any' przy rzutowaniu lub OrderDetails, żeby TypeScript nie marudził przy przekazywaniu propsów
-  const [detailsOrder, setDetailsOrder] = useState<any | null>(null);
+  const [detailsOrder, setDetailsOrder] = useState<Order | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-
-  const handleRowClick = (order: Order) => {
-    setDetailsOrder(order);
-    setIsDetailsOpen(true);
-  };
 
   const fetchOrders = async () => {
     try {
       const response = await api.get('/orders');
       setOrders(response.data);
-    } catch (error) {
-      console.error('Błąd:', error);
-    } finally {
-      setLoading(false);
-    }
+    } catch (error) { console.error('Błąd:', error); } 
+    finally { setLoading(false); }
   };
 
   useEffect(() => {
     fetchOrders();
-    const interval = setInterval(fetchOrders, 10000); // Odświeżaj co 10s
-    return () => clearInterval(interval);
+    const interval = setInterval(fetchOrders, 5000); // Szybsze odświeżanie
+    const timerInterval = setInterval(() => setNow(new Date()), 60000);
+    return () => {
+        clearInterval(interval);
+        clearInterval(timerInterval);
+    };
   }, []);
 
-  // 1. Otwórz okno płatności
-  const openPayment = (order: Order) => {
-    setSelectedOrder(order);
-    setIsPaymentOpen(true);
+  // --- ULEPSZONE OBLICZANIE CZASU ---
+  const getRemainingTime = (order: Order) => {
+      const scheduled = order.deliveryDetails?.scheduledTime;
+      if (!scheduled) return null;
+
+      let targetTime = new Date();
+      let label = "";
+
+      // 1. Format "Za X min"
+      if (scheduled.toLowerCase().includes("za")) {
+          const minutesToAdd = parseInt(scheduled.replace(/\D/g, '')) || 0;
+          const createdAt = new Date(order.createdAt);
+          targetTime = new Date(createdAt.getTime() + minutesToAdd * 60000);
+      } 
+      // 2. Format "HH:MM"
+      else if (scheduled.includes(":")) {
+          const timePart = scheduled.match(/(\d{2}):(\d{2})/);
+          if (timePart) {
+              const [_, h, m] = timePart;
+              targetTime.setHours(parseInt(h), parseInt(m), 0, 0);
+              label = "Na godz. ";
+          }
+      } else {
+          return scheduled; // Inny tekst
+      }
+
+      const diffMs = targetTime.getTime() - now.getTime();
+      const diffMins = Math.floor(diffMs / 60000);
+
+      if (diffMins < 0) return `Opóźnienie: ${Math.abs(diffMins)} min`;
+      
+      // Jeśli to była godzina, dodajemy prefix, jeśli "za ile" to samo "Zostało"
+      const prefix = label ? `${label} (${scheduled})` : 'Zostało:';
+      
+      // Jeśli jest dużo tekstu, skracamy
+      if(label) return `${scheduled} (za ${diffMins} min)`;
+      
+      return `${prefix} ${diffMins} min`;
   };
 
-  // 2. Zatwierdź płatność i zamknij zamówienie
+  const getRemainingTimeColor = (text: string | null) => {
+      if (!text) return 'text.secondary';
+      if (text.includes("Opóźnienie")) return 'error.main';
+      // Parsujemy minuty z tekstu
+      const match = text.match(/(\d+)\s*min/);
+      if (match) {
+          const mins = parseInt(match[1]);
+          if (mins < 15) return 'warning.main';
+      }
+      return 'success.main';
+  };
+
+  // Handlery
+  const openDetails = (order: Order) => { setDetailsOrder(order); setIsDetailsOpen(true); };
+  const openPayment = (order: Order) => { setSelectedOrder(order); setIsPaymentOpen(true); };
+  
   const handleConfirmPayment = async (method: 'cash' | 'card') => {
     if (!selectedOrder) return;
-
     try {
-      await api.post(`/orders/${selectedOrder._id}/close`, {
-          paymentMethod: method
-      });
-      
-      fetchOrders(); // Odśwież listę
+      await api.post(`/orders/${selectedOrder._id}/close`, { paymentMethod: method });
+      fetchOrders();
       setIsPaymentOpen(false);
       setSelectedOrder(null);
-    } catch (error) {
-      console.error('Błąd zamykania:', error);
-      alert('Nie udało się zamknąć zamówienia.');
-    }
+    } catch (error) { alert('Błąd zamykania'); }
   };
 
-  // Filtrowanie
+  const handleEdit = (order: Order) => {
+      navigate('/pos', { state: { editOrder: order } });
+  };
+
   const currentOrders = orders.filter(o => o.status !== 'closed');
   const archivedOrders = orders.filter(o => o.status === 'closed');
   const displayedOrders = tabValue === 0 ? currentOrders : archivedOrders;
 
-  // Pomocnicze funkcje UI
-  const getStatusChip = (status: string) => {
-    const map: Record<string, any> = {
-      'kitchen': { label: 'W Kuchni', color: 'warning' },
-      'ready': { label: 'Gotowe', color: 'success' },
-      'closed': { label: 'Zamknięte', color: 'default' }
-    };
-    const s = map[status] || { label: status, color: 'default' };
-    return <Chip label={s.label} color={s.color} size="small" sx={{ fontWeight: 'bold' }} />;
-  };
-
-  const getOrderTypeIcon = (type?: string) => {
-      switch(type) {
-          case 'delivery': return <DeliveryDiningIcon color="warning" />;
-          case 'takeout': return <ShoppingBagIcon color="info" />;
-          default: return <RestaurantIcon color="success" />;
-      }
+  const getOrderColor = (type?: string) => {
+      if (type === 'delivery') return '#ed6c02'; 
+      if (type === 'takeout') return '#0288d1';
+      return '#2e7d32';
   };
 
   const getOrderLabel = (order: Order) => {
-      if (order.tableNumber) return `Stolik #${order.tableNumber}`;
-      if (order.orderType === 'delivery') return 'Dostawa';
-      if (order.orderType === 'takeout') return 'Wynos';
-      return 'Inne';
+      if (order.tableNumber) return `STOLIK ${order.tableNumber}`;
+      if (order.orderType === 'delivery') return 'DOSTAWA';
+      return 'WYNOS';
   };
 
   if (loading) return <Box p={5} textAlign="center"><CircularProgress /></Box>;
 
   return (
-    <Container maxWidth="xl" sx={{ mt: 4 }}>
+    <Container maxWidth="xl" sx={{ mt: 4, mb: 10 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" fontWeight="bold">
-          Zarządzanie Zamówieniami
-        </Typography>
+        <Typography variant="h4" fontWeight="bold">Zarządzanie Zamówieniami</Typography>
       </Box>
 
-      <Paper sx={{ mb: 3 }}>
-        <Tabs 
-          value={tabValue} 
-          onChange={(_, newValue) => setTabValue(newValue)} 
-          indicatorColor="primary" 
-          textColor="primary"
-          variant="fullWidth"
-        >
-          <Tab label={`BIEŻĄCE (${currentOrders.length})`} sx={{ fontWeight: 'bold', fontSize: '1rem' }} />
-          <Tab label="ARCHIWUM" sx={{ fontWeight: 'bold', fontSize: '1rem' }} />
+      <Paper sx={{ mb: 4, borderRadius: 2, overflow: 'hidden' }}>
+        <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)} indicatorColor="primary" textColor="primary" variant="fullWidth" sx={{ bgcolor: 'white' }}>
+          <Tab label={`BIEŻĄCE (${currentOrders.length})`} sx={{ fontWeight: 'bold', fontSize: '1.1rem', py: 2 }} />
+          <Tab label="ARCHIWUM" sx={{ fontWeight: 'bold', fontSize: '1.1rem', py: 2 }} />
         </Tabs>
       </Paper>
 
-      <TableContainer component={Paper} sx={{ boxShadow: 3 }}>
-        <Table>
-          <TableHead sx={{ bgcolor: '#263238' }}>
-            <TableRow>
-              <TableCell sx={{ color: 'white' }}>Typ / Czas</TableCell>
-              <TableCell sx={{ color: 'white' }}>Szczegóły (Adres/Stolik)</TableCell>
-              <TableCell sx={{ color: 'white' }}>Zawartość</TableCell>
-              <TableCell sx={{ color: 'white' }}>Kwota</TableCell>
-              <TableCell sx={{ color: 'white' }}>Status</TableCell>
-              <TableCell align="right" sx={{ color: 'white' }}>Akcja</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {displayedOrders.map((order) => (
-              <TableRow 
-                key={order._id} 
-                hover
-                onClick={() => handleRowClick(order)}
-                sx={{cursor: 'pointer'}}
-              >
-                
-                {/* KOLUMNA 1: TYP I CZAS */}
-                <TableCell>
-                  <Stack direction="row" spacing={1} alignItems="center" mb={0.5}>
-                    {getOrderTypeIcon(order.orderType)}
-                    <Typography fontWeight="bold">{getOrderLabel(order)}</Typography>
-                  </Stack>
-                  <Typography variant="caption" color="text.secondary">
-                    {new Date(order.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                  </Typography>
-                </TableCell>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr', lg: 'repeat(4, 1fr)' }, gap: 3 }}>
+        {displayedOrders.map((order) => {
+            const color = getOrderColor(order.orderType);
+            const timeText = getRemainingTime(order);
+            const timeColor = getRemainingTimeColor(timeText);
 
-                {/* KOLUMNA 2: ADRES / CZAS DOSTAWY */}
-                <TableCell>
-                    {order.deliveryDetails ? (
-                        <Box>
-                            {order.deliveryDetails.address && (
-                                <Typography variant="body2" fontWeight="bold">
-                                    {order.deliveryDetails.address}
+            return (
+                <Card 
+                    key={order._id}
+                    sx={{ 
+                        cursor: 'pointer', 
+                        transition: '0.2s',
+                        borderLeft: `8px solid ${color}`, 
+                        boxShadow: 3,
+                        '&:hover': { transform: 'translateY(-4px)', boxShadow: 8 },
+                        display: 'flex', 
+                        flexDirection: 'column',
+                        height: '100%', // Rozciągnij kartę
+                        minHeight: '320px' // Minimalna wysokość
+                    }}
+                    onClick={() => openDetails(order)}
+                >
+                    <CardContent sx={{ p: 2, '&:last-child': { pb: 2 }, display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+                        
+                        {/* 1. GÓRA: Typ i Numer */}
+                        <Box mb={1}>
+                            <Typography variant="h4" fontWeight="900" color={color}>
+                                #{order.dailyNumber || '?'}
+                            </Typography>
+                            <Typography variant="subtitle2" fontWeight="bold" sx={{ textTransform: 'uppercase', letterSpacing: 1, color: '#555' }}>
+                                {getOrderLabel(order)}
+                            </Typography>
+                        </Box>
+
+                        {/* 2. CZAS REALIZACJI */}
+                        {timeText && (
+                            <Box display="flex" alignItems="center" gap={1} mb={2} bgcolor="#f5f5f5" p={1} borderRadius={1}>
+                                <TimerIcon sx={{ color: timeColor }} />
+                                <Typography fontWeight="bold" sx={{ color: timeColor, fontSize: '1rem' }}>
+                                    {timeText}
                                 </Typography>
-                            )}
-                            {order.deliveryDetails.scheduledTime && (
-                                <Box display="flex" alignItems="center" gap={0.5} mt={0.5}>
-                                    <AccessTimeIcon fontSize="small" color="action" />
-                                    <Typography variant="caption" color="primary" fontWeight="bold">
-                                        {order.deliveryDetails.scheduledTime}
+                            </Box>
+                        )}
+
+                        {/* 3. LISTA (Rozpycha kartę) */}
+                        <Box flexGrow={1} mb={2}>
+                            {order.items.slice(0, 4).map((item, idx) => (
+                                <Box key={idx} display="flex" justifyContent="space-between" mb={0.5} sx={{ borderBottom: '1px dashed #eee', pb: 0.5 }}>
+                                    <Typography variant="body2" noWrap sx={{ maxWidth: '80%' }}>
+                                        <b>{item.quantity}x</b> {item.name}
                                     </Typography>
                                 </Box>
+                            ))}
+                            {order.items.length > 4 && (
+                                <Typography variant="caption" color="text.secondary" fontStyle="italic">
+                                    ...i jeszcze {order.items.length - 4} poz.
+                                </Typography>
                             )}
                         </Box>
-                    ) : (
-                        <Typography variant="body2" color="text.secondary">-</Typography>
-                    )}
-                </TableCell>
 
-                {/* KOLUMNA 3: ZAWARTOŚĆ (SKRÓT) */}
-                <TableCell>
-                    <Typography variant="body2" sx={{ maxWidth: 300, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {order.items.map(i => `${i.quantity}x ${i.name}`).join(', ')}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                        Pozycji: {order.items.reduce((acc, i) => acc + i.quantity, 0)}
-                    </Typography>
-                </TableCell>
+                        <Divider sx={{ mb: 2 }} />
 
-                {/* KOLUMNA 4: KWOTA */}
-                <TableCell>
-                  <Typography variant="h6" fontWeight="bold" color="primary">
-                    {order.totalAmount.toFixed(2)} zł
-                  </Typography>
-                </TableCell>
+                        {/* 4. DÓŁ: CENA I PRZYCISKI (Przyklejone do dołu) */}
+                        <Box>
+                            <Typography variant="h5" fontWeight="bold" align="right" sx={{ mb: 1 }}>
+                                {order.totalAmount.toFixed(2)} zł
+                            </Typography>
 
-                {/* KOLUMNA 5: STATUS */}
-                <TableCell>
-                  {getStatusChip(order.status)}
-                </TableCell>
+                            <Box display="flex" gap={1}>
+                                {order.status !== 'closed' && (
+                                    <Button 
+                                        variant="outlined" 
+                                        size="small" 
+                                        onClick={(e) => { e.stopPropagation(); handleEdit(order); }}
+                                        sx={{ flex: 1, fontWeight: 'bold' }}
+                                        startIcon={<EditIcon />}
+                                    >
+                                        EDYTUJ
+                                    </Button>
+                                )}
+                                {order.status !== 'closed' ? (
+                                    <Button 
+                                        variant="contained" 
+                                        color="success" 
+                                        size="small" 
+                                        onClick={(e) => { e.stopPropagation(); openPayment(order); }} 
+                                        sx={{ flex: 1, fontWeight: 'bold' }}
+                                        startIcon={<AttachMoneyIcon />}
+                                    >
+                                        ROZLICZ
+                                    </Button>
+                                ) : (
+                                    <Chip label="ZAMKNIĘTE" sx={{ width: '100%' }} />
+                                )}
+                            </Box>
+                        </Box>
 
-                {/* KOLUMNA 6: PRZYCISK */}
-                <TableCell align="right">
-  <Stack direction="row" spacing={1} justifyContent="flex-end">
-      
-      {/* PRZYCISK EDYCJI */}
-      {order.status !== 'closed' && (
-        <Button
-            variant="outlined"
-            size="small"
-            onClick={(e) => {
-                e.stopPropagation();
-                // Przenosimy do POS i przekazujemy całe zamówienie
-                navigate('/pos', { state: { editOrder: order } });
-            }}
-        >
-            EDYTUJ
-        </Button>
-      )}
+                    </CardContent>
+                </Card>
+            );
+        })}
+      </Box>
 
-      {/* PRZYCISK ROZLICZ (bez zmian) */}
-      {order.status !== 'closed' && (
-        <Button variant="contained" color="success" size="small" onClick={(e) => { e.stopPropagation(); openPayment(order); }}>
-          ROZLICZ
-        </Button>
-      )}
-  </Stack>
-</TableCell>
-              </TableRow>
-            ))}
-            
-            {displayedOrders.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={6} align="center" sx={{ py: 5 }}>
-                  <Typography variant="h6" color="text.secondary">Brak zamówień</Typography>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      {/* MODAL PŁATNOŚCI */}
-      <PaymentModal 
-        open={isPaymentOpen}
-        onClose={() => setIsPaymentOpen(false)}
-        order={selectedOrder}
-        onConfirmPayment={handleConfirmPayment}
-      />
-      
-      {/* MODAL SZCZEGÓŁÓW */}
-      <OrderDetailsModal 
-        open={isDetailsOpen} 
-        onClose={() => setIsDetailsOpen(false)} 
-        order={detailsOrder} 
-      />
-
+      <PaymentModal open={isPaymentOpen} onClose={() => setIsPaymentOpen(false)} order={selectedOrder} onConfirmPayment={handleConfirmPayment} />
+      <OrderDetailsModal open={isDetailsOpen} onClose={() => setIsDetailsOpen(false)} order={detailsOrder} onPay={() => {setIsDetailsOpen(false); if(detailsOrder) openPayment(detailsOrder)}} onEdit={() => {setIsDetailsOpen(false); if(detailsOrder) handleEdit(detailsOrder)}} />
     </Container>
   );
 };

@@ -25,7 +25,7 @@ interface Category { _id: string; name: string; }
 interface MenuData { categories: Category[]; products: Product[]; }
 
 interface CartItem {
-  _id: string; cartId: string; name: string; basePrice: number; totalPrice: number; quantity: number;
+  _id: string; cartId: string; name: string; categoryName?: string; basePrice: number; totalPrice: number; quantity: number;
   productId: string; 
   details?: { variant?: string; ingredients: { name: string, quantity: number, isBase: boolean }[]; comment: string; };
 }
@@ -68,7 +68,12 @@ function PosPage() {
     const init = async () => {
       try {
         const response = await api.get('/menu');
-        setMenu(response.data);
+        const menuData = response.data; // Zapisujemy do zmiennej lokalnej, bo state setMenu zadziała dopiero po renderze
+        setMenu(menuData);
+        
+        if (menuData.categories.length > 0) {
+            setActiveCategory(menuData.categories[0]._id);
+        }
         if (response.data.categories.length > 0) setActiveCategory(response.data.categories[0]._id);
 
         if (stateInfo?.editOrder) {
@@ -85,16 +90,35 @@ function PosPage() {
                 });
             }
 
-            const restoredCart = oldOrder.items.map((item: any) => ({
-                _id: item.productId,
-                productId: item.productId,
-                cartId: Math.random().toString(),
-                name: item.name.split(' 32cm')[0].split(' 43cm')[0], 
-                basePrice: item.price,
-                totalPrice: item.price * item.quantity,
-                quantity: item.quantity,
-                details: item.details
-            }));
+            const restoredCart = oldOrder.items.map((item: any) => {
+                let cleanName = item.name;
+                if (item.details?.variant) {
+                    cleanName = cleanName.replace(item.details.variant, '').trim();
+                }
+                let catName = item.categoryName;
+
+                if(!catName && menuData) {
+                  const productDef = menuData.products.find((p: any) => p._id === item.productId);
+                  if (productDef) {
+                    const categoryDef = menuData.categories.find((c: any) => c._id === productDef.categoryId);
+                    if(categoryDef) {
+                      catName = categoryDef.name;
+                    }
+                  }
+                }
+                
+                return {
+                    _id: item.productId,
+                    productId: item.productId,
+                    cartId: Math.random().toString(),
+                    name: cleanName,
+                    categoryName: catName,
+                    basePrice: item.price,
+                    totalPrice: item.price * item.quantity,
+                    quantity: item.quantity,
+                    details: item.details
+                };
+            });
             setCart(restoredCart);
         }
 
@@ -125,12 +149,13 @@ function PosPage() {
 
   const handleAddFromModal = (payload: CartItemPayload) => {
     const { product, selectedVariant, selectedIngredients, comment, finalPrice } = payload;
-    
+
     const newItem: CartItem = {
       _id: product._id, 
       productId: product._id,
       cartId: editingCartId || Math.random().toString(36).substr(2, 9),
       name: product.name, 
+      categoryName: menu?.categories.find(c => c._id === product.categoryId)?.name,
       basePrice: finalPrice, 
       totalPrice: finalPrice, 
       quantity: 1,
@@ -179,6 +204,7 @@ function PosPage() {
         items: cart.map(item => ({
           productId: item.productId,
           name: item.details?.variant ? `${item.name} ${item.details.variant}` : item.name,
+          categoryName: item.categoryName,
           price: item.basePrice,
           quantity: item.quantity,
           details: item.details
@@ -199,8 +225,8 @@ function PosPage() {
       };
 
       if (editingOrderId) {
-          await api.post('/orders', orderPayload); // W wersji produkcyjnej użyłbyś PUT
-          alert('Zamówienie zaktualizowane (jako nowe)!');
+          await api.put(`/orders/${editingOrderId}`, orderPayload); // W wersji produkcyjnej użyłbyś PUT
+          alert('Zamówienie zaktualizowane');
       } else {
           await api.post('/orders', orderPayload);
           alert('Zamówienie przyjęte!');
