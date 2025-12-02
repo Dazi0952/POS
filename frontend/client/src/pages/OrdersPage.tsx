@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import api from '../api/axios';
 import { 
   Container, Typography, Box, Paper, Tabs, Tab, 
-  Button, CircularProgress, Card, CardContent, Chip, Divider 
+  Button, CircularProgress, Card, CardContent, Chip, Divider, 
+  IconButton
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
@@ -10,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import EditIcon from '@mui/icons-material/Edit';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import TimerIcon from '@mui/icons-material/Timer';
-
+import HomeIcon from '@mui/icons-material/Home';
 import PaymentModal from '../components/PaymentModal';
 import OrderDetailsModal from '../components/OrderDetailsModal';
 interface Order {
@@ -145,6 +146,22 @@ export const OrdersPage = () => {
 
   return (
     <Container maxWidth="xl" sx={{ mt: 4, mb: 10 }}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Box display="flex" alignItems="center" gap={2}>
+            <IconButton 
+                onClick={() => navigate('/')} 
+                sx={{ 
+                    bgcolor: 'white', 
+                    boxShadow: 2, 
+                    width: 50, 
+                    height: 50, 
+                    '&:hover': { bgcolor: '#f5f5f5' } 
+                }}
+            >
+                <HomeIcon color="action" fontSize="large" />
+            </IconButton>
+        </Box>
+      </Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h4" fontWeight="bold">Zarządzanie Zamówieniami</Typography>
       </Box>
