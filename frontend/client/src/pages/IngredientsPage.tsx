@@ -15,21 +15,21 @@ interface Ingredient {
   name: string;
   category: string;
   price: number;
-  validCategories: string[]; // ID kategorii
+  validCategories: string[]; 
 }
 
 interface Category { _id: string; name: string; }
 
 export const IngredientsPage = () => {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]); // Lista kategorii z menu
+  const [categories, setCategories] = useState<Category[]>([]); 
   
-  // Stan formularza (Dodawanie / Edycja)
+  
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formName, setFormName] = useState('');
   const [formPrice, setFormPrice] = useState('');
   const [formType, setFormType] = useState('VEG');
-  const [formCats, setFormCats] = useState<string[]>([]); // Wybrane kategorie
+  const [formCats, setFormCats] = useState<string[]>([]); 
 
   const navigate = useNavigate();
 
@@ -37,7 +37,7 @@ export const IngredientsPage = () => {
     try {
       const [resIng, resCat] = await Promise.all([
           api.get('/ingredients'),
-          api.get('/menu') // Pobieramy kategorie z menu
+          api.get('/menu') 
       ]);
       setIngredients(resIng.data);
       setCategories(resCat.data.categories);
@@ -83,7 +83,7 @@ export const IngredientsPage = () => {
     fetchData();
   };
 
-  // Helper do wyświetlania nazw kategorii w tabeli
+  
   const getCatNames = (ids: string[]) => {
       if (!ids || ids.length === 0) return <Chip label="Wszystkie" size="small" variant="outlined" />;
       return ids.map(id => {
@@ -100,7 +100,7 @@ export const IngredientsPage = () => {
 
       <Typography variant="h4" fontWeight="bold" mb={3}>Baza Składników</Typography>
       
-      {/* FORMULARZ */}
+      
       <Paper sx={{ p: 3, mb: 4, bgcolor: editingId ? '#e3f2fd' : 'white', border: editingId ? '1px solid #2196f3' : 'none' }}>
         <Typography variant="h6" gutterBottom>{editingId ? 'Edytuj Składnik' : 'Nowy Składnik'}</Typography>
         <Box display="flex" gap={2} flexWrap="wrap" alignItems="center">
@@ -150,7 +150,7 @@ export const IngredientsPage = () => {
         </Typography>
       </Paper>
 
-      {/* LISTA */}
+      
       <Paper>
         <Table>
             <TableHead>

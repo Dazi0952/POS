@@ -7,9 +7,9 @@ import {
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 
-// --- KONFIGURACJA LOGIKI FILTROWANIA ---
 
-// Ceny dla rozmiarów (Index 0, 1, 2)
+
+
 const PRICING_RULES = {
     VEG:   [2, 3, 4],
     MEAT:  [6, 8, 10],
@@ -18,12 +18,12 @@ const PRICING_RULES = {
     OTHER: [3, 4, 5]
 };
 
-// Baza składników z przypisaniem do typu (scope)
-// scope: ['ALL'] - pasuje do wszystkiego
-// scope: ['PIZZA'] - tylko pizze
-// scope: ['BURGER'] - tylko burgery
+
+
+
+
 const ALL_INGREDIENTS_DB = [
-    // --- UNIWERSALNE (Boczek, Warzywa) ---
+    
     { name: "Boczek", type: 'MEAT', scope: ['ALL'] },
     { name: "Bekon", type: 'MEAT', scope: ['ALL'] },
     { name: "Cebula", type: 'VEG', scope: ['ALL'] },
@@ -39,7 +39,7 @@ const ALL_INGREDIENTS_DB = [
     { name: "Sos Czosnkowy", type: 'SAUCE', scope: ['ALL'] },
     { name: "Rukola", type: 'VEG', scope: ['ALL'] },
 
-    // --- TYLKO BURGERY ---
+    
     { name: "Ser Cheddar", type: 'CHEESE', scope: ['BURGER'] },
     { name: "Ser Mimolette", type: 'CHEESE', scope: ['BURGER'] },
     { name: "Pikle", type: 'VEG', scope: ['BURGER'] },
@@ -56,7 +56,7 @@ const ALL_INGREDIENTS_DB = [
     { name: "Sałata", type: 'VEG', scope: ['BURGER'] },
     { name: "Bułka wypiekana", type: 'OTHER', scope: ['BURGER'] },
 
-    // --- TYLKO PIZZE ---
+    
     { name: "Mozzarella", type: 'CHEESE', scope: ['PIZZA'] },
     { name: "Mozzarella (Double)", type: 'CHEESE', scope: ['PIZZA'] },
     { name: "Parmezan", type: 'CHEESE', scope: ['PIZZA'] },
@@ -117,17 +117,17 @@ export default function ProductModal({ open, onClose, product, onAddToCart, init
   const [ingredientsMap, setIngredientsMap] = useState<Record<string, number>>({}); 
   const [comment, setComment] = useState('');
 
-  // --- DETEKCJA TYPU PRODUKTU (PIZZA vs BURGER) ---
+  
   const getProductType = (): 'PIZZA' | 'BURGER' | 'OTHER' => {
       if (!product) return 'OTHER';
       
-      // Sprawdzamy nazwy wariantów
+      
       const variantNames = product.variants.map(v => v.name.toLowerCase()).join(' ');
       
       if (variantNames.includes('cm')) return 'PIZZA';
       if (variantNames.includes('180g') || variantNames.includes('360g') || variantNames.includes('150g') || variantNames.includes('300g') || variantNames.includes('540g')|| variantNames.includes('260g')) return 'BURGER';
       
-      // Fallback: po nazwie produktu
+      
       const name = product.name.toLowerCase();
       if (name.includes('pizza')) return 'PIZZA';
       if (name.includes('burger')) return 'BURGER';
@@ -137,7 +137,7 @@ export default function ProductModal({ open, onClose, product, onAddToCart, init
 
   useEffect(() => {
     if (product && open) {
-      // 1. Wariant
+      
       let initVarIdx = 0;
       if (initialValues?.variantName && product.hasVariants) {
         const idx = product.variants.findIndex(v => v.name === initialValues.variantName);
@@ -145,15 +145,15 @@ export default function ProductModal({ open, onClose, product, onAddToCart, init
       }
       setVariantIndex(initVarIdx);
 
-      // 2. Składniki
+      
       const initialMap: Record<string, number> = {};
       
-      // Domyślne z produktu
+      
       product.ingredients.forEach(ing => {
         initialMap[ing.name] = ing.isDefault ? 1 : 0;
       });
 
-      // Z edycji
+      
       if (initialValues?.ingredients) {
           Object.keys(initialMap).forEach(k => initialMap[k] = 0); 
           initialValues.ingredients.forEach(ing => {
@@ -168,7 +168,7 @@ export default function ProductModal({ open, onClose, product, onAddToCart, init
 
   if (!product) return null;
 
-  // --- LOGIKA CENOWA ---
+  
   const getIngredientPrice = (name: string): number => {
     const ingDef = ALL_INGREDIENTS_DB.find(i => i.name === name);
     const type = ingDef ? ingDef.type : 'OTHER';
@@ -181,25 +181,25 @@ export default function ProductModal({ open, onClose, product, onAddToCart, init
     return product.ingredients.some(i => i.name === name && i.isDefault);
   };
 
-  // --- FILTROWANIE LIST ---
+  
   const currentProductType = getProductType();
   const baseIngredients = product.ingredients;
 
-  // Filtrujemy globalną bazę:
-  // 1. Usuń to co już jest w pizzy/burgerze
-  // 2. Zostaw tylko to, co pasuje do typu (scope) lub jest uniwersalne ('ALL')
+  
+  
+  
   const possibleExtras = ALL_INGREDIENTS_DB.filter(extra => {
     const isAlreadyInBase = baseIngredients.some(base => base.name === extra.name);
     if (isAlreadyInBase) return false;
 
-    // Logika Scope
+    
     if (extra.scope.includes('ALL')) return true;
     if (extra.scope.includes(currentProductType)) return true;
     
     return false;
   }).sort((a, b) => a.type.localeCompare(b.type));
 
-  // --- KALKULACJA SUMY ---
+  
   const basePrice = product.hasVariants && product.variants.length > 0
     ? product.variants[variantIndex].price
     : product.price;
@@ -209,15 +209,15 @@ export default function ProductModal({ open, onClose, product, onAddToCart, init
     const price = getIngredientPrice(name);
     const isDefault = isDefaultIngredient(name);
     
-    // Jeśli składnik bazowy: płacimy tylko za extra porcje (>1)
-    // Jeśli dodatek: płacimy za każdą porcję (>0)
+    
+    
     const chargeableQty = isDefault ? Math.max(0, qty - 1) : qty;
     return sum + (chargeableQty * price);
   }, 0);
 
   const finalPrice = basePrice + ingredientsTotal;
 
-  // --- HANDLERY ---
+  
   const handleIngredientChange = (name: string, delta: number) => {
     setIngredientsMap(prev => ({
       ...prev,
@@ -229,7 +229,7 @@ export default function ProductModal({ open, onClose, product, onAddToCart, init
     const selectedIngs = Object.entries(ingredientsMap)
       .filter(([name, qty]) => {
         const isBase = isDefaultIngredient(name);
-        // Zapisujemy, jeśli ilość > 0 LUB jeśli to był bazowy składnik (żeby zapisać usunięcie - ilość 0)
+        
         return qty > 0 || isBase;
       })
       .map(([name, qty]) => ({
@@ -293,7 +293,7 @@ export default function ProductModal({ open, onClose, product, onAddToCart, init
       </DialogTitle>
       
       <DialogContent dividers>
-        {/* WYBÓR WARIANTU */}
+        
         {product.hasVariants && (
           <Box mb={3}>
             <RadioGroup row value={variantIndex} onChange={(e) => setVariantIndex(Number(e.target.value))}>
@@ -324,7 +324,7 @@ export default function ProductModal({ open, onClose, product, onAddToCart, init
 
         <Divider sx={{ my: 2 }} />
 
-        {/* SKŁADNIKI BAZOWE */}
+        
         <Box mb={3}>
           <Typography variant="subtitle2" color="text.secondary" gutterBottom>SKŁADNIKI BAZOWE</Typography>
           {baseIngredients.map(ing => renderIngredientRow(ing.name, true))}
@@ -332,7 +332,7 @@ export default function ProductModal({ open, onClose, product, onAddToCart, init
 
         <Divider sx={{ my: 2 }} />
 
-        {/* DODATKI PŁATNE - FILTROWANE */}
+        
         <Box mb={3}>
            <Typography variant="subtitle2" color="text.secondary" gutterBottom>DODATKI PŁATNE (Dopasowane)</Typography>
            {possibleExtras.map(extra => renderIngredientRow(extra.name, false))}

@@ -9,14 +9,14 @@ export const getDailyStats = async (req: Request, res: Response) => {
 
     const Order = getTenantModel(db, 'Order', OrderSchema);
 
-    // Zakres: Dzisiaj (od 00:00 do 23:59)
+    
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
     
     const endOfDay = new Date();
     endOfDay.setHours(23, 59, 59, 999);
 
-    // 1. Podsumowanie ogólne (Suma, Ilość, Średnia)
+    
     const stats = await Order.aggregate([
       { 
         $match: { 
@@ -34,7 +34,7 @@ export const getDailyStats = async (req: Request, res: Response) => {
       }
     ]);
 
-    // 2. Sprzedaż wg typu (Wykres: Sala vs Wynos vs Dostawa)
+    
     const ordersByType = await Order.aggregate([
       { $match: { createdAt: { $gte: startOfDay, $lte: endOfDay } } },
       {

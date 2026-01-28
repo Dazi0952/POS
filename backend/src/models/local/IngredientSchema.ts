@@ -3,7 +3,7 @@ import { Schema, Document } from 'mongoose';
 export interface IIngredient extends Document {
   name: string;
   category: 'VEG' | 'MEAT' | 'CHEESE' | 'SAUCE' | 'OTHER';
-  price: number; // Cena bazowa (lub dla rozmiaru standard)
+  price: number; 
   isAvailable: boolean;
   validCategories: string[];
 }

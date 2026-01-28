@@ -16,8 +16,8 @@ export interface OrderSettings {
   name?: string;
   address?: string;
   phone?: string;
-  timeType: 'delta' | 'fixed'; // 'delta' = za ile minut, 'fixed' = na godzinę
-  timeValue: string; // np. "30" (minut) lub "14:30" (godzina)
+  timeType: 'delta' | 'fixed'; 
+  timeValue: string; 
 }
 
 interface Props {
@@ -29,20 +29,20 @@ interface Props {
 }
 
 export default function OrderSettingsModal({ open, mode, onClose, onSave, currentSettings }: Props) {
-  // Stany formularza
+  
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
   
-  // Czas
+  
   const [timeType, setTimeType] = useState<'delta' | 'fixed'>('delta');
-  const [deltaMinutes, setDeltaMinutes] = useState('30'); // Domyślnie za 30 min
+  const [deltaMinutes, setDeltaMinutes] = useState('30'); 
   const [fixedTime, setFixedTime] = useState('');
 
-  // Inicjalizacja przy otwarciu
+  
   useEffect(() => {
     if (open && currentSettings) {
-      // Jeśli edytujemy istniejące ustawienia
+      
       setName(currentSettings.name || '');
       setAddress(currentSettings.address || '');
       setPhone(currentSettings.phone || '');
@@ -50,16 +50,16 @@ export default function OrderSettingsModal({ open, mode, onClose, onSave, curren
       if (currentSettings.timeType === 'delta') setDeltaMinutes(currentSettings.timeValue);
       else setFixedTime(currentSettings.timeValue);
     } else if (open) {
-      // Reset do domyślnych przy nowym otwarciu
+      
       setDeltaMinutes('30');
       
-      // Ustawiamy domyślną godzinę na "za godzinę"
+      
       const now = new Date();
       now.setHours(now.getHours() + 1);
-      const timeString = now.toTimeString().slice(0, 5); // "14:30"
+      const timeString = now.toTimeString().slice(0, 5); 
       setFixedTime(timeString);
 
-      // Jeśli przełączamy tryb, czyścimy dane adresowe
+      
       if (mode === 'takeout') {
         setAddress('');
         setName('');
@@ -69,7 +69,7 @@ export default function OrderSettingsModal({ open, mode, onClose, onSave, curren
   }, [open, currentSettings, mode]);
 
   const handleSave = () => {
-    // Walidacja
+    
     if (!name) {
         alert('Podaj imię klienta!');
         return;
@@ -110,7 +110,7 @@ export default function OrderSettingsModal({ open, mode, onClose, onSave, curren
 
       <DialogContent sx={{ mt: 2 }}>
         
-        {/* DANE KLIENTA (ZAWSZE WIDOCZNE) */}
+        
         <Box mb={3} mt={1}>
             <Typography variant="subtitle2" color="text.secondary" gutterBottom fontWeight="bold">
                 DANE KLIENTA
@@ -128,7 +128,7 @@ export default function OrderSettingsModal({ open, mode, onClose, onSave, curren
                   InputProps={{ startAdornment: <InputAdornment position="start"><PhoneIcon /></InputAdornment> }}
                 />
                 
-                {/* ADRES TYLKO DLA DOSTAWY */}
+                
                 {mode === 'delivery' && (
                     <TextField 
                       fullWidth label="Adres dostawy" variant="outlined" 
@@ -142,7 +142,7 @@ export default function OrderSettingsModal({ open, mode, onClose, onSave, curren
 
         <Divider sx={{ mb: 3 }} />
 
-        {/* CZAS REALIZACJI */}
+        
         <Typography variant="subtitle2" color="text.secondary" gutterBottom fontWeight="bold">
             CZAS REALIZACJI
         </Typography>

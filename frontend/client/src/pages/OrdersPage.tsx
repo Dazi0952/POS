@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
-// Ikony
+
 import EditIcon from '@mui/icons-material/Edit';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import TimerIcon from '@mui/icons-material/Timer';
@@ -48,7 +48,7 @@ export const OrdersPage = () => {
 
   useEffect(() => {
     fetchOrders();
-    const interval = setInterval(fetchOrders, 5000); // Szybsze odświeżanie
+    const interval = setInterval(fetchOrders, 5000); 
     const timerInterval = setInterval(() => setNow(new Date()), 60000);
     return () => {
         clearInterval(interval);
@@ -56,7 +56,7 @@ export const OrdersPage = () => {
     };
   }, []);
 
-  // --- ULEPSZONE OBLICZANIE CZASU ---
+  
   const getRemainingTime = (order: Order) => {
       const scheduled = order.deliveryDetails?.scheduledTime;
       if (!scheduled) return null;
@@ -64,13 +64,13 @@ export const OrdersPage = () => {
       let targetTime = new Date();
       let label = "";
 
-      // 1. Format "Za X min"
+      
       if (scheduled.toLowerCase().includes("za")) {
           const minutesToAdd = parseInt(scheduled.replace(/\D/g, '')) || 0;
           const createdAt = new Date(order.createdAt);
           targetTime = new Date(createdAt.getTime() + minutesToAdd * 60000);
       } 
-      // 2. Format "HH:MM"
+      
       else if (scheduled.includes(":")) {
           const timePart = scheduled.match(/(\d{2}):(\d{2})/);
           if (timePart) {
@@ -79,7 +79,7 @@ export const OrdersPage = () => {
               label = "Na godz. ";
           }
       } else {
-          return scheduled; // Inny tekst
+          return scheduled; 
       }
 
       const diffMs = targetTime.getTime() - now.getTime();
@@ -87,10 +87,10 @@ export const OrdersPage = () => {
 
       if (diffMins < 0) return `Opóźnienie: ${Math.abs(diffMins)} min`;
       
-      // Jeśli to była godzina, dodajemy prefix, jeśli "za ile" to samo "Zostało"
+      
       const prefix = label ? `${label} (${scheduled})` : 'Zostało:';
       
-      // Jeśli jest dużo tekstu, skracamy
+      
       if(label) return `${scheduled} (za ${diffMins} min)`;
       
       return `${prefix} ${diffMins} min`;
@@ -99,7 +99,7 @@ export const OrdersPage = () => {
   const getRemainingTimeColor = (text: string | null) => {
       if (!text) return 'text.secondary';
       if (text.includes("Opóźnienie")) return 'error.main';
-      // Parsujemy minuty z tekstu
+      
       const match = text.match(/(\d+)\s*min/);
       if (match) {
           const mins = parseInt(match[1]);
@@ -108,7 +108,7 @@ export const OrdersPage = () => {
       return 'success.main';
   };
 
-  // Handlery
+  
   const openDetails = (order: Order) => { setDetailsOrder(order); setIsDetailsOpen(true); };
   const openPayment = (order: Order) => { setSelectedOrder(order); setIsPaymentOpen(true); };
   
@@ -190,14 +190,14 @@ export const OrdersPage = () => {
                         '&:hover': { transform: 'translateY(-4px)', boxShadow: 8 },
                         display: 'flex', 
                         flexDirection: 'column',
-                        height: '100%', // Rozciągnij kartę
-                        minHeight: '320px' // Minimalna wysokość
+                        height: '100%', 
+                        minHeight: '320px' 
                     }}
                     onClick={() => openDetails(order)}
                 >
                     <CardContent sx={{ p: 2, '&:last-child': { pb: 2 }, display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
                         
-                        {/* 1. GÓRA: Typ i Numer */}
+                        
                         <Box mb={1}>
                             <Typography variant="h4" fontWeight="900" color={color}>
                                 #{order.dailyNumber || '?'}
@@ -207,7 +207,7 @@ export const OrdersPage = () => {
                             </Typography>
                         </Box>
 
-                        {/* 2. CZAS REALIZACJI */}
+                        
                         {timeText && (
                             <Box display="flex" alignItems="center" gap={1} mb={2} bgcolor="#f5f5f5" p={1} borderRadius={1}>
                                 <TimerIcon sx={{ color: timeColor }} />
@@ -217,7 +217,7 @@ export const OrdersPage = () => {
                             </Box>
                         )}
 
-                        {/* 3. LISTA (Rozpycha kartę) */}
+                        
                         <Box flexGrow={1} mb={2}>
                             {order.items.slice(0, 4).map((item, idx) => (
                                 <Box key={idx} display="flex" justifyContent="space-between" mb={0.5} sx={{ borderBottom: '1px dashed #eee', pb: 0.5 }}>
@@ -235,7 +235,7 @@ export const OrdersPage = () => {
 
                         <Divider sx={{ mb: 2 }} />
 
-                        {/* 4. DÓŁ: CENA I PRZYCISKI (Przyklejone do dołu) */}
+                        
                         <Box>
                             <Typography variant="h5" fontWeight="bold" align="right" sx={{ mb: 1 }}>
                                 {order.totalAmount.toFixed(2)} zł

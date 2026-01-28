@@ -4,9 +4,9 @@ import UserSchema from '../models/local/UserSchema';
 
 dotenv.config();
 
-// Adres bazy Twojej pizzerii
+
 const TARGET_DB_URI = 'mongodb+srv://admin:haslo123@cluster0.5ifydrn.mongodb.net/tenant_pizzeria_mario_1?appName=Cluster0'; 
-// LUB ATLAS (skopiuj z .env i zmień nazwę bazy na tenant_pizzeria_mario_1)
+
 
 const seedUsers = async () => {
   try {
@@ -15,14 +15,14 @@ const seedUsers = async () => {
     
     const User = conn.model('User', UserSchema);
 
-    // Czyścimy starych userów
+    
     await User.deleteMany({});
 
-    // Dodajemy nowych
+    
     const users = [
       {
-        username: "Janek", // To wyświetli się na kafelku
-        pin: "1234",       // PIN do logowania
+        username: "Janek", 
+        pin: "1234",       
         role: "waiter",
         name: "Jan Kowalski",
         isActive: true
@@ -43,7 +43,7 @@ const seedUsers = async () => {
       }
     ];
 
-    // UserSchema ma middleware 'pre save', który sam zahashuje PINy!
+    
     for (const u of users) {
         await User.create(u);
     }

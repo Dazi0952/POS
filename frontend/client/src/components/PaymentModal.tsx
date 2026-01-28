@@ -8,7 +8,7 @@ import CreditCardIcon from '@mui/icons-material/CreditCard';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
-// Typy zgodne z tym co przychodzi z backendu
+
 interface OrderItem {
   name: string;
   quantity: number;
@@ -20,7 +20,7 @@ export interface OrderToPay {
   totalAmount: number;
   items: OrderItem[];
   tableNumber?: string;
-  orderType?: string; // 'dine-in', 'takeout', 'delivery'
+  orderType?: string; 
 }
 
 interface Props {
@@ -35,7 +35,7 @@ export default function PaymentModal({ open, onClose, order, onConfirmPayment }:
   const [cashReceived, setCashReceived] = useState<string>('');
   const [change, setChange] = useState<number>(0);
 
-  // Reset przy otwarciu
+  
   useEffect(() => {
     if (open) {
       setPaymentMethod('card');
@@ -44,7 +44,7 @@ export default function PaymentModal({ open, onClose, order, onConfirmPayment }:
     }
   }, [open, order]);
 
-  // Kalkulator reszty
+  
   useEffect(() => {
     if (order && cashReceived) {
       const received = parseFloat(cashReceived);
@@ -64,7 +64,7 @@ export default function PaymentModal({ open, onClose, order, onConfirmPayment }:
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <Box display="flex" flexDirection={{ xs: 'column', md: 'row' }} height="70vh">
         
-        {/* === LEWA STRONA: PODGLĄD PARAGONU === */}
+        
         <Box sx={{ flex: 1, bgcolor: '#f5f5f5', p: 3, display: 'flex', flexDirection: 'column', borderRight: '1px solid #ddd' }}>
           <Typography variant="h6" fontWeight="bold" gutterBottom>
             Podsumowanie
@@ -104,14 +104,14 @@ export default function PaymentModal({ open, onClose, order, onConfirmPayment }:
           </Box>
         </Box>
 
-        {/* === PRAWA STRONA: PŁATNOŚĆ === */}
+        
         <Box sx={{ flex: 1, p: 3, display: 'flex', flexDirection: 'column' }}>
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
             <Typography variant="h5" fontWeight="bold">Rozliczenie</Typography>
             <IconButton onClick={onClose}><CloseIcon /></IconButton>
           </Box>
 
-          {/* Wybór Metody */}
+          
           <Stack direction="row" spacing={2} mb={4}>
             <Button 
               variant={paymentMethod === 'card' ? 'contained' : 'outlined'}
@@ -135,7 +135,7 @@ export default function PaymentModal({ open, onClose, order, onConfirmPayment }:
             </Button>
           </Stack>
 
-          {/* Sekcja Gotówki */}
+          
           {paymentMethod === 'cash' && (
             <Box bgcolor="#e3f2fd" p={3} borderRadius={2} mb={2}>
               <TextField
@@ -164,7 +164,7 @@ export default function PaymentModal({ open, onClose, order, onConfirmPayment }:
             </Box>
           )}
 
-          {/* Spacer żeby przycisk był na dole */}
+          
           <Box flex={1} />
 
           <Button

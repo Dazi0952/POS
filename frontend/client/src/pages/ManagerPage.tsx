@@ -25,7 +25,7 @@ export const ManagerPage = () => {
         const res = await api.get('/reports/settlements');
         setStats(res.data);
         
-        // Oblicz sumy globalne
+        
         const totals = res.data.reduce((acc: any, curr: any) => ({
             cash: acc.cash + curr.cash,
             card: acc.card + curr.card,
@@ -49,7 +49,7 @@ export const ManagerPage = () => {
         Raport z dnia: {new Date().toLocaleDateString()}
       </Typography>
 
-      {/* KAFELKI PODSUMOWANIA */}
+      
       <Grid container spacing={3} mb={4}>
         <Grid size={{ xs: 12, md: 4 }}>
             <Card sx={{ bgcolor: '#e8f5e9' }}>
@@ -83,7 +83,7 @@ export const ManagerPage = () => {
         </Grid>
       </Grid>
 
-      {/* TABELA PRACOWNIKÓW */}
+      
       <Typography variant="h5" fontWeight="bold" mb={2}>Rozliczenie Pracowników</Typography>
       <TableContainer component={Paper}>
         <Table>

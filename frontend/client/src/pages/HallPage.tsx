@@ -5,7 +5,7 @@ import {
   Container, Typography, Box, Paper, CircularProgress, Chip 
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
-//import TableRestaurantIcon from '@mui/icons-material/TableRestaurant';
+
 import PersonIcon from '@mui/icons-material/Person';
 
 interface Table {
@@ -60,7 +60,7 @@ export const HallPage = () => {
           Mapa Sali
         </Typography>
         
-        {/* Legenda */}
+        
         <Box display="flex" gap={2}>
           <Chip label="Wolny" sx={{ bgcolor: '#4caf50', color: 'white' }} />
           <Chip label="Zajęty" sx={{ bgcolor: '#f44336', color: 'white' }} />

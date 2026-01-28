@@ -4,9 +4,9 @@ import {
    Typography, Card, CardContent, CircularProgress, 
    List, ListItem, Divider, Button, Box, Chip, Stack, IconButton, TextField, ToggleButton, ToggleButtonGroup 
 } from '@mui/material';
-import { useLocation, useNavigate } from 'react-router-dom'; // useNavigate do przekierowań
+import { useLocation, useNavigate } from 'react-router-dom'; 
 
-// Ikony
+
 import LocalPizzaIcon from '@mui/icons-material/LocalPizza';
 import LunchDiningIcon from '@mui/icons-material/LunchDining';
 import LocalDrinkIcon from '@mui/icons-material/LocalDrink';
@@ -15,7 +15,7 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
-import EditIcon from '@mui/icons-material/Edit'; // Ikona edycji
+import EditIcon from '@mui/icons-material/Edit'; 
 
 import ProductModal from '../components/ProductModal';
 import OrderSettingsModal from '../components/OrderSettingsModal';
@@ -68,7 +68,7 @@ function PosPage() {
     const init = async () => {
       try {
         const response = await api.get('/menu');
-        const menuData = response.data; // Zapisujemy do zmiennej lokalnej, bo state setMenu zadziała dopiero po renderze
+        const menuData = response.data; 
         setMenu(menuData);
         
         if (menuData.categories.length > 0) {
@@ -225,7 +225,7 @@ function PosPage() {
       };
 
       if (editingOrderId) {
-          await api.put(`/orders/${editingOrderId}`, orderPayload); // W wersji produkcyjnej użyłbyś PUT
+          await api.put(`/orders/${editingOrderId}`, orderPayload); 
           alert('Zamówienie zaktualizowane');
       } else {
           await api.post('/orders', orderPayload);
@@ -247,7 +247,7 @@ function PosPage() {
   return (
     <Box sx={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', bgcolor: '#f4f6f8' }}>
       
-      {/* LEWA STRONA */}
+      
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
         <Box p={2} bgcolor="white" borderBottom="1px solid #ddd" sx={{ zIndex: 10 }}>
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
@@ -273,7 +273,7 @@ function PosPage() {
     .filter((p) => p.categoryId === category._id)
     .map((product) => {
       
-      // --- BEZPIECZNE OBLICZANIE CENY (FIX BŁĘDU) ---
+      
       let displayPrice = 0;
       let hasVariants = false;
 
@@ -283,7 +283,7 @@ function PosPage() {
       } else {
           displayPrice = product.price || 0;
       }
-      // -----------------------------------------------
+      
 
       return (
         <Card 
@@ -318,7 +318,7 @@ function PosPage() {
 
                 <Typography variant="h6" color="primary" fontWeight="bold">
                   {hasVariants ? <span style={{fontSize: '0.7em', color: '#666'}}>od </span> : ''}
-                  {/* Używamy bezpiecznej zmiennej displayPrice */}
+                  
                   {displayPrice.toFixed(2)}
                   <span style={{fontSize: '0.7em'}}> zł</span>
                 </Typography>
@@ -334,7 +334,7 @@ function PosPage() {
         </Box>
       </Box>
 
-      {/* PRAWA STRONA */}
+      
       <Box sx={{ width: { xs: '340px', md: '450px' }, borderLeft: '1px solid #ddd', bgcolor: 'white', display: 'flex', flexDirection: 'column', height: '100%', zIndex: 20, boxShadow: -10 }}>
           
           <Box p={2} bgcolor="#1a2027" color="white" display="flex" alignItems="center" justifyContent="space-between">

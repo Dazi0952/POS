@@ -1,4 +1,4 @@
-// backend/src/scripts/data/menu-data.ts
+
 
 const pizzaBaseIngredients = [
     { name: "Sos pomidorowy", price: 0, isDefault: true },
@@ -159,9 +159,9 @@ export const menuData = [
     ]
   },
 
-  // ============================================================
-  // KATEGORIA: THE BEST OF KING BURGERS
-  // ============================================================
+  
+  
+  
   {
     categoryName: "The Best Of King Burgers",
     description: "Specjalne kompozycje smaków",
@@ -333,9 +333,9 @@ export const menuData = [
     ]
   },
 
-  // ============================================================
-  // KATEGORIA: CHICKEN BURGERS
-  // ============================================================
+  
+  
+  
   {
     categoryName: "Chicken Burgers",
     description: "Soczysty kurczak w różnych odsłonach",
@@ -460,9 +460,9 @@ export const menuData = [
     ]
   },
 
-  // ============================================================
-  // KATEGORIA: PIZZA
-  // ============================================================
+  
+  
+  
   {
     categoryName: "Pizza",
     description: "Średnica 32cm, sos z pomidorów pelati",
@@ -877,9 +877,9 @@ export const menuData = [
     ]
   },
 
-  // ============================================================
-  // KATEGORIA: STARTERS / LOADED FRIES / WINGS
-  // ============================================================
+  
+  
+  
   {
     categoryName: "Starters & Fries",
     description: "Przystawki, frytki i skrzydełka",
@@ -973,9 +973,9 @@ export const menuData = [
     ]
   },
 
-  // ============================================================
-  // KATEGORIA: SAŁATKI
-  // ============================================================
+  
+  
+  
   {
     categoryName: "Sałatki",
     description: "Świeże i chrupiące",
@@ -1028,9 +1028,6 @@ export const menuData = [
     ]
   },
 
-  // ============================================================
-  // KATEGORIA: NAPOJE
-  // ============================================================
   {
     categoryName: "Napoje",
     description: "Zimne i gorące",

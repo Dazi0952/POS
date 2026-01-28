@@ -10,12 +10,12 @@ export const SetupPage = () => {
   const handleSave = () => {
     if (!tenantId) return alert('Wpisz ID!');
     
-    // Zapisujemy ID restauracji "na zawsze" w tym urządzeniu
+    
     localStorage.setItem('pos_tenant_id', tenantId);
     
-    // Przekieruj do PIN Pada
+    
     navigate('/login');
-    window.location.reload(); // Wymuś odświeżenie konfiguracji axios
+    window.location.reload(); 
   };
 
   return (

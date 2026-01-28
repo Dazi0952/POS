@@ -10,7 +10,7 @@ import ProductFormModal from '../components/ProductFormModal';
 import type { ProductData } from '../components/ProductFormModal';
 import { useNavigate } from 'react-router-dom';
 import CategoryIcon from '@mui/icons-material/Category';
-// Typy (proste, do listy)
+
 interface Product { _id: string; name: string; price: number; categoryId: string; }
 interface Category { _id: string; name: string; }
 interface MenuData { categories: Category[]; products: Product[]; }
@@ -49,7 +49,7 @@ export const MenuEditorPage = () => {
   };
 
   const handleEdit = (product: any) => {
-    setEditingProduct(product); // Tryb edycji, ładujemy dane
+    setEditingProduct(product); 
     setIsModalOpen(true);
   };
 
@@ -61,13 +61,13 @@ export const MenuEditorPage = () => {
   const handleSaveProduct = async (data: ProductData) => {
     try {
         if (data._id) {
-            // Edycja (PUT)
+            
             await api.put(`/menu/products/${data._id}`, data);
         } else {
-            // Nowy (POST)
+            
             await api.post('/menu/products', data);
         }
-        fetchMenu(); // Odśwież listę
+        fetchMenu(); 
         setIsModalOpen(false);
     } catch (error) {
         console.error(error);
@@ -100,7 +100,7 @@ export const MenuEditorPage = () => {
 
       {menu?.categories.map((category) => (
         <Paper key={category._id} sx={{ p: 3, mb: 4, bgcolor: '#fafafa' }}>
-          {/* Nagłówek Kategorii */}
+          
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} borderBottom="1px solid #ddd" pb={1}>
             <Typography variant="h5" fontWeight="bold" color="primary">
                 {category.name}
@@ -108,7 +108,7 @@ export const MenuEditorPage = () => {
             <Button size="small" color="inherit">Edytuj Kategorię</Button>
           </Box>
 
-          {/* Lista Produktów w Kategorii */}
+          
           <Box>
             {menu.products
               .filter(p => p.categoryId === category._id)

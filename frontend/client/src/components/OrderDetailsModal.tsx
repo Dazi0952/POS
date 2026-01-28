@@ -13,14 +13,14 @@ import PersonIcon from '@mui/icons-material/Person';
 import EditIcon from '@mui/icons-material/Edit';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 
-// Definicja typu pojedynczego składnika
+
 interface IngredientDetail {
     name: string;
     quantity: number;
     isBase: boolean;
 }
 
-// Typy zgodne z tym co wysyła backend
+
 export interface OrderItem {
   name: string;
   categoryName: string;
@@ -37,7 +37,7 @@ export interface OrderDetails {
   _id: string;
   dailyNumber?: number;
   tableNumber?: string;
-  orderType?: string; // 'dine-in' | 'takeout' | 'delivery'
+  orderType?: string; 
   deliveryDetails?: { 
       address?: string; 
       phone?: string; 
@@ -80,7 +80,7 @@ export default function OrderDetailsModal({ open, onClose, order, onPay, onEdit 
  return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth scroll="paper">
       
-      {/* NAGŁÓWEK */}
+      
       <DialogTitle sx={{ bgcolor: '#263238', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 2 }}>
         <Box display="flex" alignItems="center" gap={2}>
           {getIcon()}
@@ -98,7 +98,7 @@ export default function OrderDetailsModal({ open, onClose, order, onPay, onEdit 
 
       <DialogContent dividers sx={{ p: 3 }}>
         
-        {/* SEKCJA 1: LOGISTYKA */}
+        
         <Box mb={4} p={2} bgcolor="#f5f5f5" borderRadius={2} border="1px solid #e0e0e0">
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                 <Typography variant="subtitle2" color="text.secondary" fontWeight="bold">SZCZEGÓŁY REALIZACJI</Typography>
@@ -106,7 +106,7 @@ export default function OrderDetailsModal({ open, onClose, order, onPay, onEdit 
             </Box>
             
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr 1fr' }, gap: 2 }}>
-                {/* Data */}
+                
                 <Box>
                     <Box display="flex" alignItems="center" gap={0.5} color="text.secondary">
                         <EventIcon fontSize="small" />
@@ -117,7 +117,7 @@ export default function OrderDetailsModal({ open, onClose, order, onPay, onEdit 
                     </Typography>
                 </Box>
 
-                {/* Klient */}
+                
                 <Box>
                     <Box display="flex" alignItems="center" gap={0.5} color="text.primary">
                         <PersonIcon fontSize="small" />
@@ -131,7 +131,7 @@ export default function OrderDetailsModal({ open, onClose, order, onPay, onEdit 
                     </Typography>
                 </Box>
 
-                {/* Adres / Czas */}
+                
                 <Box>
                     {order.deliveryDetails?.address && (
                         <>
@@ -155,7 +155,7 @@ export default function OrderDetailsModal({ open, onClose, order, onPay, onEdit 
                 </Box>
             </Box>
 
-            {/* Komentarz */}
+            
             {order.orderComment && (
                 <Box mt={2} pt={1} borderTop="1px dashed #ccc">
                     <Typography variant="caption" color="warning.dark" fontWeight="bold">UWAGI: </Typography>
@@ -164,7 +164,7 @@ export default function OrderDetailsModal({ open, onClose, order, onPay, onEdit 
             )}
         </Box>
 
-        {/* SEKCJA 2: POZYCJE */}
+        
         <Box sx={{ bgcolor: '#fafafa', borderRadius: 2, overflow: 'hidden', border: '1px solid #eee' }}>
                 {order.items.map((item, idx) => (
                     <Box 
@@ -176,9 +176,9 @@ export default function OrderDetailsModal({ open, onClose, order, onPay, onEdit 
                         }}
                     >
                         <Box display="flex" justifyContent="space-between" alignItems="flex-start">
-                            {/* LEWA STRONA: ILOŚĆ + NAZWA + DETALE */}
+                            
                             <Box>
-                                {/* KATEGORIA (Mały tag nad nazwą) */}
+                                
                                 {item.categoryName && (
                                     <Chip 
                                         label={item.categoryName.toUpperCase()} 
@@ -204,7 +204,7 @@ export default function OrderDetailsModal({ open, onClose, order, onPay, onEdit 
                                     </Typography>
                                 </Box>
                                 
-                                {/* WARIANT (np. 360g) */}
+                                
                                 {item.details?.variant && (
                                     <Chip 
                                         label={item.details.variant} 
@@ -214,7 +214,7 @@ export default function OrderDetailsModal({ open, onClose, order, onPay, onEdit 
                                     />
                                 )}
 
-                                {/* LISTA SKŁADNIKÓW */}
+                                
                                 <Box mt={1} pl={1} borderLeft="2px solid #eee">
                                     {item.details?.ingredients?.filter(i => !i.isBase).map((ing, i) => (
                                         <Typography key={i} variant="body2" sx={{ color: '#2e7d32', fontWeight: '500', fontSize: '0.85rem' }}>
@@ -223,7 +223,7 @@ export default function OrderDetailsModal({ open, onClose, order, onPay, onEdit 
                                     ))}
                                 </Box>
 
-                                {/* KOMENTARZ */}
+                                
                                 {item.details?.comment && (
                                     <Typography variant="caption" display="block" sx={{ color: '#ed6c02', mt: 0.5, bgcolor: '#fff3e0', px: 0.5, borderRadius: 1, width: 'fit-content' }}>
                                         📝 {item.details.comment}
@@ -231,7 +231,7 @@ export default function OrderDetailsModal({ open, onClose, order, onPay, onEdit 
                                 )}
                             </Box>
 
-                            {/* PRAWA STRONA: CENA */}
+                            
                             <Typography fontWeight="bold" sx={{ fontSize: '1.1rem' }}>
                                 {(item.price * item.quantity).toFixed(2)} zł
                             </Typography>
@@ -240,7 +240,7 @@ export default function OrderDetailsModal({ open, onClose, order, onPay, onEdit 
                 ))}
             </Box>
 
-        {/* SEKCJA 3: PODSUMOWANIE */}
+        
         <Box mt={3} display="flex" justifyContent="flex-end" alignItems="center">
             <Typography variant="h6" sx={{ mr: 2, color: 'text.secondary' }}>RAZEM DO ZAPŁATY:</Typography>
             <Typography variant="h3" fontWeight="bold" color="primary">
@@ -250,7 +250,7 @@ export default function OrderDetailsModal({ open, onClose, order, onPay, onEdit 
 
       </DialogContent>
 
-      {/* PRZYCISKI AKCJI (Zawsze widoczne na dole) */}
+      
       <DialogActions sx={{ p: 3, bgcolor: '#fafafa', justifyContent: 'space-between' }}>
         <Button onClick={onClose} color="inherit">ZAMKNIJ</Button>
         

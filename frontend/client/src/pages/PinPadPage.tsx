@@ -23,12 +23,12 @@ export const PinPadPage = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // 1. Pobierz listę pracowników przy starcie
+  
   useEffect(() => {
     const fetchEmployees = async () => {
       const tenantId = localStorage.getItem('pos_tenant_id');
       if (!tenantId) {
-        navigate('/setup'); // Jeśli brak ID restauracji, idź do setupu
+        navigate('/setup'); 
         return;
       }
       try {
@@ -44,14 +44,14 @@ export const PinPadPage = () => {
     fetchEmployees();
   }, [navigate]);
 
-  // 2. Obsługa klawiatury
+  
   const handleNumClick = (num: string) => {
     if (pin.length < 4) setPin(prev => prev + num);
   };
 
   const handleBackspace = () => setPin(prev => prev.slice(0, -1));
 
-  // 3. Logowanie
+  
   const handleLogin = async () => {
     if (!selectedUser) return;
     try {
@@ -60,20 +60,20 @@ export const PinPadPage = () => {
         pin: pin
       });
 
-      // Zapisz token usera (sesję pracownika)
+      
       localStorage.setItem('pos_token', res.data.token);
       localStorage.setItem('pos_user_name', res.data.name);
       localStorage.setItem('pos_user_id', selectedUser._id);
       localStorage.setItem('pos_user_role', res.data.role); 
       
-      navigate('/'); // Idź do Dashboardu
+      navigate('/'); 
     } catch (error) {
       alert('Błędny PIN!');
       setPin('');
     }
   };
 
-  // Auto-login po wpisaniu 4 cyfr
+  
   useEffect(() => {
     if (pin.length === 4) handleLogin();
   }, [pin]);
@@ -88,7 +88,7 @@ export const PinPadPage = () => {
   return (
     <Box sx={{ height: '100vh', display: 'flex', bgcolor: '#263238' }}>
       
-      {/* LEWA STRONA: LISTA PRACOWNIKÓW */}
+      
       <Box sx={{ flex: 1, p: 4, overflowY: 'auto', borderRight: '1px solid #455a64' }}>
         <Typography variant="h4" color="white" fontWeight="bold" mb={4}>
           Kto pracuje?
@@ -121,7 +121,7 @@ export const PinPadPage = () => {
         </Button>
       </Box>
 
-      {/* PRAWA STRONA: PIN PAD */}
+      
       <Box sx={{ width: '400px', p: 4, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', bgcolor: '#1c2429' }}>
         {selectedUser ? (
             <>

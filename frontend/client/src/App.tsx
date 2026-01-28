@@ -24,11 +24,11 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Trasy publiczne / konfiguracyjne */}
+        
         <Route path="/setup" element={<SetupPage />} />
         <Route path="/login" element={<PinPadPage />} />
 
-        {/* Trasy chronione */}
+        
         <Route path="/" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
         <Route path="/pos" element={<ProtectedRoute><PosPage /></ProtectedRoute>} />
         <Route path="/hall" element={<ProtectedRoute><HallPage /></ProtectedRoute>} />

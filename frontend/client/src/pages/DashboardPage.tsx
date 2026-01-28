@@ -58,7 +58,7 @@ export const DashboardPage = () => {
   const handleLogout = () => {
     localStorage.removeItem('pos_token');
     localStorage.removeItem('pos_user_name');
-    localStorage.removeItem('pos_user_id');   // Czyścimy ID
+    localStorage.removeItem('pos_user_id');   
     localStorage.removeItem('pos_user_role');
     navigate('/login');
   }

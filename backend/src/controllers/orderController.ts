@@ -127,7 +127,7 @@ export const updateOrder = async (req: Request, res: Response) => {
     const Order = getTenantModel(db, 'Order', OrderSchema);
     const { id } = req.params;
     
-    // Aktualizujemy wszystko co przyszło w body (items, totalAmount, itp.)
+    
     const updatedOrder = await Order.findByIdAndUpdate(
         id, 
         req.body, 
